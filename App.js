@@ -1,14 +1,115 @@
 import { StatusBar } from "expo-status-bar"
-import { StyleSheet, Switch, Text, View } from "react-native"
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native"
+import { Switch } from "react-native-paper"
 import { useFonts } from "expo-font"
 
 import Svg, { Path } from "react-native-svg"
+import { useState } from "react"
 
 export default function App() {
   const [fontsLoaded] = useFonts({
     "nunito-regular": require("./assets/fonts/Nunito-Regular.ttf"),
     "nunito-medium": require("./assets/fonts/Nunito-Medium.ttf"),
   })
+
+  const todosOsDias = [
+    "Domingo",
+    "Segunda",
+    "Terça",
+    "Quarta",
+    "Quinta",
+    "Sexta",
+    "Sábado",
+  ]
+
+  const converterHoraParaMinutos = (hora) => {
+    const [horas, minutos] = hora.split(":").map(Number)
+    return horas * 60 + minutos
+  }
+
+  const converterMinutosParaHora = (minutos) => {
+    const horas = Math.floor(minutos / 60)
+    const mins = minutos % 60
+    return `${horas.toString().padStart(2, "0")}:${mins
+      .toString()
+      .padStart(2, "0")}`
+  }
+
+  const [data, setData] = useState([
+    {
+      id: 1,
+      nome: "🏫 Escola",
+      alarmes: [
+        {
+          id: 1,
+          nome: "alarme1",
+          hora: "06:30",
+          ativo: true,
+          dias: ["Segunda", "Terça", "Quarta"],
+        },
+        {
+          id: 2,
+          nome: "alarme2",
+          hora: "07:00",
+          ativo: true,
+          dias: ["Segunda", "Terça", "Quarta"],
+        },
+      ],
+      grupoAtivo: true,
+    },
+    {
+      id: 2,
+      nome: "💊 Remédios",
+      alarmes: [
+        {
+          id: 1,
+          nome: "Dipirona",
+          hora: "08:00",
+          ativo: true,
+          dias: [
+            "Domingo",
+            "Segunda",
+            "Terça",
+            "Quarta",
+            "Quinta",
+            "Sexta",
+            "Sábado",
+          ],
+        },
+        {
+          id: 2,
+          nome: "azulzin",
+          hora: "22:00",
+          ativo: false,
+          dias: ["Sexta", "Sábado", "Domingo"],
+        },
+        {
+          id: 3,
+          nome: "doril",
+          hora: "18:00",
+          ativo: true,
+          dias: ["Sexta", "Segunda"],
+        },
+      ],
+      grupoAtivo: true,
+    },
+  ])
+
+  const toggleSwitch = (itemId) => {
+    const newData = data.map((item) => {
+      if (item.id === itemId) {
+        return { ...item, grupoAtivo: !item.grupoAtivo }
+      }
+      return item
+    })
+    setData(newData)
+  }
 
   return (
     <View style={styles.container}>
@@ -40,23 +141,58 @@ export default function App() {
         </View>
       </View>
       <View style={styles.alarms}>
-        <View style={styles.alarm}>
-          <View style={styles.alarmInfo}>
-            <Text style={styles.alarmTitle}>🏫 Escola</Text>
-            <Text style={styles.alarmOverline}>5 Alarmes ativos de 6</Text>
-            <Text style={styles.caption}>06:50 - 07:00 AM</Text>
-          </View>
-          <View style={styles.alarmDias}>
-            <Text style={styles.alarmOverline}>D</Text>
-            <Text style={styles.alarmOverline}>S</Text>
-            <Text style={styles.alarmOverline}>T</Text>
-            <Text style={styles.alarmOverline}>Q</Text>
-            <Text style={styles.alarmOverline}>Q</Text>
-            <Text style={styles.alarmOverline}>S</Text>
-            <Text style={styles.alarmOverline}>S</Text>
-          </View>
-          <Switch value={false} />
-        </View>
+        {data.map((item) => {
+          // Filtrar os alarmes ativos e converter as horas para minutos
+          const alarmesAtivosMinutos = item.alarmes
+            .filter((alarme) => alarme.ativo)
+            .map((alarme) => converterHoraParaMinutos(alarme.hora))
+
+          const menorHora = Math.min(...alarmesAtivosMinutos)
+          const maiorHora = Math.max(...alarmesAtivosMinutos)
+
+          const horarioInicio = converterMinutosParaHora(menorHora)
+          const horarioFim = converterMinutosParaHora(maiorHora)
+
+          return (
+            <View key={item.id} style={styles.alarm}>
+              <TouchableOpacity style={styles.touchAlarm}>
+                <View style={styles.alarmInfo}>
+                  <Text style={styles.alarmTitle}>{item.nome}</Text>
+                  <Text style={styles.overline}>
+                    {item.alarmes.filter((alarme) => alarme.ativo).length}{" "}
+                    Alarmes ativos de {item.alarmes.length}
+                  </Text>
+                  <Text
+                    style={styles.caption}
+                  >{`${horarioInicio} - ${horarioFim}`}</Text>
+                </View>
+                <View style={styles.alarmDias}>
+                  {todosOsDias.map((diaSemana, index) => {
+                    const diaAtivo = item.alarmes.some(
+                      (alarme) =>
+                        alarme.ativo && alarme.dias.includes(diaSemana)
+                    )
+                    return (
+                      <View key={index} style={styles.alarmDia}>
+                        <Text style={styles.alarmOverline}>{diaSemana[0]}</Text>
+                        {diaAtivo && <View style={styles.after} />}
+                      </View>
+                    )
+                  })}
+                </View>
+              </TouchableOpacity>
+              <TouchableWithoutFeedback onPress={() => toggleSwitch(item.id)}>
+                <View style={styles.switchView}>
+                  <Switch
+                    value={item.grupoAtivo}
+                    onValueChange={() => toggleSwitch(item.id)}
+                    style={styles.switch}
+                  />
+                </View>
+              </TouchableWithoutFeedback>
+            </View>
+          )
+        })}
       </View>
     </View>
   )
@@ -67,8 +203,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#EEEEF0",
     paddingHorizontal: 16,
-    paddingTop: 64,
     gap: 32,
+    paddingTop: 64,
   },
   mainHeader: {
     gap: 16,
@@ -98,18 +234,31 @@ const styles = StyleSheet.create({
     gap: 32,
   },
   alarm: {
-    padding: 16,
     backgroundColor: "#FEFEFF",
     borderRadius: 16,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
+  touchAlarm: {
+    padding: 16,
+    borderTopLeftRadius: 16,
+    borderBottomLeftRadius: 16,
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
   alarmTitle: {
     fontFamily: "nunito-medium",
     fontSize: 14,
     lineHeight: 22,
     letterSpacing: 0.014,
+  },
+  overline: {
+    fontFamily: "nunito-regular",
+    fontSize: 10,
+    lineHeight: 20,
   },
   alarmOverline: {
     fontFamily: "nunito-regular",
@@ -123,7 +272,25 @@ const styles = StyleSheet.create({
     letterSpacing: 0.048,
   },
   alarmDias: {
+    flex: 1,
     flexDirection: "row",
+    justifyContent: "flex-end",
     gap: 8,
+  },
+  alarmDia: {
+    flexDirection: "column",
+  },
+  after: {
+    backgroundColor: "#1B1D1F",
+    height: 1,
+    borderRadius: 100,
+  },
+  switchView: {
+    padding: 10,
+    paddingVertical: 23,
+  },
+  switch: {
+    alignSelf: "center",
+    justifyContent: "center",
   },
 })
