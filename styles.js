@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet } from "react-native"
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -94,14 +94,59 @@ export const styles = StyleSheet.create({
     alignSelf: "center",
     justifyContent: "center",
   },
-  modalContainer: {
+  centeredView: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: "flex-end",
     alignItems: "center",
   },
-  modalContent: {
+  modalView: {
+    width: "100%",
     backgroundColor: "white",
-    padding: 16,
-    borderRadius: 8,
+    borderTopRightRadius: 28,
+    borderTopLeftRadius: 28,
+    padding: 35,
+    elevation: 1,
+    gap: 24,
   },
-});
+  modalTitle: {
+    gap: 8,
+  },
+  modalText: {
+    color: "#70797E",
+    fontFamily: "nunito-medium",
+    fontSize: 16,
+    lineHeight: 32,
+  },
+  input: {
+    height: 40,
+    borderWidth: 1,
+    borderColor: "#70797E",
+    padding: 10,
+    borderRadius: 10,
+    fontFamily: "nunito-regular",
+    fontSize: 16,
+    color: "#70797E",
+  },
+  modalButtons: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 12,
+  },
+  buttonClose: {
+    color: "#959598",
+    fontFamily: "nunito-regular",
+    fontSize: 16,
+    paddingHorizontal: 24,
+    paddingVertical: 10,
+  },
+  buttonCreate: {
+    paddingHorizontal: 24,
+    paddingVertical: 10,
+    backgroundColor: "#575759",
+    color: "white",
+    borderRadius: 24,
+    fontFamily: "nunito-medium",
+    fontSize: 16,
+  },
+})

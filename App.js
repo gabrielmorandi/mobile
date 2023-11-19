@@ -1,25 +1,31 @@
-import { StatusBar } from "expo-status-bar";
+import { StatusBar } from "expo-status-bar"
+import DateTimePicker from "@react-native-community/datetimepicker"
+import AsyncStorage from "@react-native-async-storage/async-storage"
 import {
   StyleSheet,
   Text,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
-} from "react-native";
-import { Switch } from "react-native-paper";
-import { useFonts } from "expo-font";
+  Modal,
+  TextInput,
+} from "react-native"
+import { Switch } from "react-native-paper"
+import { useFonts } from "expo-font"
 
-import Svg, { Path } from "react-native-svg";
-import { useState, useEffect } from "react";
-import { styles } from "./styles";
-import Header from "./Header.js";
+import { useState, useEffect } from "react"
+import { styles } from "./styles"
+import Header from "./components/Header"
 
 export default function App() {
   const [fontsLoaded] = useFonts({
     "nunito-regular": require("./assets/fonts/Nunito-Regular.ttf"),
     "nunito-medium": require("./assets/fonts/Nunito-Medium.ttf"),
-  });
-
+  })
+  const [data, setData] = useState([])
+  const [modalVisible, setModalVisible] = useState(false)
+  const [groupName, setGroupName] = useState("")
+  const [modalAlarmVisible, setModalAlarmVisible] = useState(false)
   const todosOsDias = [
     "Domingo",
     "Segunda",
@@ -28,125 +34,108 @@ export default function App() {
     "Quinta",
     "Sexta",
     "Sábado",
-  ];
+  ]
 
   const converterHoraParaMinutos = (hora) => {
-    const [horas, minutos] = hora.split(":").map(Number);
-    return horas * 60 + minutos;
-  };
+    const [horas, minutos] = hora.split(":").map(Number)
+    return horas * 60 + minutos
+  }
 
   const converterMinutosParaHora = (minutos) => {
-    const horas = Math.floor(minutos / 60);
-    const mins = minutos % 60;
+    const horas = Math.floor(minutos / 60)
+    const mins = minutos % 60
     return `${horas.toString().padStart(2, "0")}:${mins
       .toString()
-      .padStart(2, "0")}`;
-  };
-
-  const [data, setData] = useState([
-    {
-      id: 1,
-      nome: "🏫 Escola",
-      alarmes: [
-        {
-          id: 1,
-          nome: "alarme1",
-          hora: "06:30",
-          ativo: true,
-          dias: ["Segunda", "Terça", "Quarta"],
-        },
-        {
-          id: 2,
-          nome: "alarme2",
-          hora: "07:00",
-          ativo: true,
-          dias: ["Segunda", "Terça", "Quarta"],
-        },
-      ],
-      grupoAtivo: true,
-    },
-    {
-      id: 2,
-      nome: "💊 Remédios",
-      alarmes: [
-        {
-          id: 1,
-          nome: "Dipirona",
-          hora: "08:00",
-          ativo: true,
-          dias: [
-            "Domingo",
-            "Segunda",
-            "Terça",
-            "Quarta",
-            "Quinta",
-            "Sexta",
-            "Sábado",
-          ],
-        },
-        {
-          id: 2,
-          nome: "azulzin",
-          hora: "22:00",
-          ativo: false,
-          dias: ["Sexta", "Sábado", "Domingo"],
-        },
-        {
-          id: 3,
-          nome: "doril",
-          hora: "18:00",
-          ativo: true,
-          dias: ["Sexta", "Segunda"],
-        },
-      ],
-      grupoAtivo: true,
-    },
-  ]);
+      .padStart(2, "0")}`
+  }
 
   const toggleSwitch = (itemId) => {
     const newData = data.map((item) => {
       if (item.id === itemId) {
-        return { ...item, grupoAtivo: !item.grupoAtivo };
+        return { ...item, grupoAtivo: !item.grupoAtivo }
       }
-      return item;
-    });
-    setData(newData);
-  };
+      return item
+    })
+    setData(newData)
+  }
 
-  const [greeting, setGreeting] = useState("");
-
-  const updateGreeting = () => {
-    const currentHour = new Date().getHours();
-
-    if (currentHour >= 5 && currentHour < 12) {
-      setGreeting("Bom dia ⛅");
-    } else if (currentHour >= 12 && currentHour < 18) {
-      setGreeting("Boa tarde ☀️");
-    } else {
-      setGreeting("Boa noite 🌙");
+  const storeData = async (value) => {
+    try {
+      const jsonValue = JSON.stringify(value)
+      await AsyncStorage.setItem("@data_key", jsonValue)
+    } catch (e) {
+      console.error("Erro ao salvar os dados", e)
     }
-  };
+  }
+
+  const loadData = async () => {
+    try {
+      const jsonValue = await AsyncStorage.getItem("@data_key")
+      if (jsonValue != null) {
+        setData(JSON.parse(jsonValue))
+      }
+    } catch (e) {
+      console.error("Erro ao carregar os dados", e)
+    }
+  }
+
+  const addGroup = () => {
+    const newGroup = {
+      id: Date.now(),
+      nome: groupName,
+      alarmes: [],
+      grupoAtivo: true,
+    }
+
+    const newData = [...data, newGroup]
+    setData(newData)
+    storeData(newData)
+    setModalVisible(false)
+    setModalAlarmVisible(true)
+    setGroupName("")
+  }
+
+  const [datee, setDate] = useState(new Date())
+  const [mode, setMode] = useState("date")
+
+  const onChange = (event, selectedDate) => {
+    const currentDate = selectedDate || date
+    setShow(Platform.OS === "ios")
+    setDate(currentDate)
+  }
+
+  const showMode = (currentMode) => {
+    setShow(true)
+    setMode(currentMode)
+  }
+
+  const showDatepicker = () => {
+    showMode("date")
+  }
+
+  const showTimepicker = () => {
+    showMode("time")
+  }
 
   useEffect(() => {
-    updateGreeting();
-  }, []);
+    loadData()
+  }, [])
 
   return (
     <View style={styles.container}>
       <StatusBar style="auto" />
-      <Header greeting={greeting}></Header>
+      <Header setModal={setModalVisible} />
       <View style={styles.alarms}>
         {data.map((item) => {
-          // Filtrar os alarmes ativos e converter as horas para minutos
           const alarmesAtivosMinutos = item.alarmes
             .filter((alarme) => alarme.ativo)
-            .map((alarme) => converterHoraParaMinutos(alarme.hora));
+            .map((alarme) => converterHoraParaMinutos(alarme.hora))
 
-          const menorHora = Math.min(...alarmesAtivosMinutos);
-          const maiorHora = Math.max(...alarmesAtivosMinutos);
+          const menorHora = Math.min(...alarmesAtivosMinutos)
+          const maiorHora = Math.max(...alarmesAtivosMinutos)
 
-          const horarioInicio = converterMinutosParaHora(menorHora);
-          const horarioFim = converterMinutosParaHora(maiorHora);
+          const horarioInicio = converterMinutosParaHora(menorHora)
+          const horarioFim = converterMinutosParaHora(maiorHora)
 
           return (
             <View key={item.id} style={styles.alarm}>
@@ -166,13 +155,13 @@ export default function App() {
                     const diaAtivo = item.alarmes.some(
                       (alarme) =>
                         alarme.ativo && alarme.dias.includes(diaSemana)
-                    );
+                    )
                     return (
                       <View key={index} style={styles.alarmDia}>
                         <Text style={styles.alarmOverline}>{diaSemana[0]}</Text>
                         {diaAtivo && <View style={styles.after} />}
                       </View>
-                    );
+                    )
                   })}
                 </View>
               </TouchableOpacity>
@@ -186,9 +175,55 @@ export default function App() {
                 </View>
               </TouchableWithoutFeedback>
             </View>
-          );
+          )
         })}
       </View>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          setModalVisible(!modalVisible)
+          setGroupName("")
+        }}
+      >
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <View style={styles.modalTitle}>
+              <Text style={styles.modalText}>Criar Grupo de alarmes</Text>
+              <TextInput
+                style={styles.input}
+                value={groupName}
+                onChangeText={setGroupName}
+                placeholder="Nome do Grupo"
+              />
+            </View>
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                onPress={() => {
+                  setModalVisible(!modalVisible)
+                  setGroupName("")
+                }}
+              >
+                <Text style={styles.buttonClose}>Cancelar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={addGroup}>
+                <Text style={styles.buttonCreate}>Criar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalAlarmVisible}
+        onRequestClose={() => {
+          setModalAlarmVisible(!modalAlarmVisible)
+        }}
+      >
+        <View style={styles.container}></View>
+      </Modal>
     </View>
-  );
+  )
 }

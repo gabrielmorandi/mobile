@@ -1,0 +1,59 @@
+const [data, setData] = useState([
+    {
+      id: 1,
+      nome: "🏫 Escola",
+      alarmes: [
+        {
+          id: 1,
+          nome: "alarme1",
+          hora: "06:30",
+          ativo: true,
+          dias: ["Segunda", "Terça", "Quarta"],
+        },
+        {
+          id: 2,
+          nome: "alarme2",
+          hora: "07:00",
+          ativo: true,
+          dias: ["Segunda", "Terça", "Quarta"],
+        },
+      ],
+      grupoAtivo: true,
+    },
+    {
+      id: 2,
+      nome: "💊 Remédios",
+      alarmes: [
+        {
+          id: 1,
+          nome: "Dipirona",
+          hora: "08:00",
+          ativo: true,
+          dias: [
+            "Domingo",
+            "Segunda",
+            "Terça",
+            "Quarta",
+            "Quinta",
+            "Sexta",
+            "Sábado",
+          ],
+        },
+        {
+          id: 2,
+          nome: "azulzin",
+          hora: "22:00",
+          ativo: false,
+          dias: ["Sexta", "Sábado", "Domingo"],
+        },
+        {
+          id: 3,
+          nome: "doril",
+          hora: "18:00",
+          ativo: true,
+          dias: ["Sexta", "Segunda"],
+        },
+      ],
+      grupoAtivo: true,
+    },
+  ])
