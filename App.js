@@ -1,21 +1,22 @@
-import { StatusBar } from "expo-status-bar"
-import DateTimePicker from "@react-native-community/datetimepicker"
-import AsyncStorage from "@react-native-async-storage/async-storage"
+import React, { useState, useEffect } from "react"
 import {
   StyleSheet,
+  View,
   Text,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  View,
-  Modal,
   TextInput,
+  Modal,
+  Platform,
 } from "react-native"
+import DateTimePicker from "@react-native-community/datetimepicker"
+import TimePicker from "./components/TimePicker"
+import AsyncStorage from "@react-native-async-storage/async-storage"
 import { Switch } from "react-native-paper"
 import { useFonts } from "expo-font"
-
-import { useState, useEffect } from "react"
 import { styles } from "./styles"
 import Header from "./components/Header"
+import { StatusBar } from "expo-status-bar"
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -26,6 +27,7 @@ export default function App() {
   const [modalVisible, setModalVisible] = useState(false)
   const [groupName, setGroupName] = useState("")
   const [modalAlarmVisible, setModalAlarmVisible] = useState(false)
+  const [time, setTime] = useState(new Date())
   const todosOsDias = [
     "Domingo",
     "Segunda",
@@ -36,11 +38,13 @@ export default function App() {
     "Sábado",
   ]
 
+  // Função para converter hora em minutos
   const converterHoraParaMinutos = (hora) => {
     const [horas, minutos] = hora.split(":").map(Number)
     return horas * 60 + minutos
   }
 
+  // Função para converter minutos em hora
   const converterMinutosParaHora = (minutos) => {
     const horas = Math.floor(minutos / 60)
     const mins = minutos % 60
@@ -49,6 +53,7 @@ export default function App() {
       .padStart(2, "0")}`
   }
 
+  // Função para toggle do switch
   const toggleSwitch = (itemId) => {
     const newData = data.map((item) => {
       if (item.id === itemId) {
@@ -59,6 +64,7 @@ export default function App() {
     setData(newData)
   }
 
+  // Função para salvar dados no AsyncStorage
   const storeData = async (value) => {
     try {
       const jsonValue = JSON.stringify(value)
@@ -68,6 +74,7 @@ export default function App() {
     }
   }
 
+  // Função para carregar dados do AsyncStorage
   const loadData = async () => {
     try {
       const jsonValue = await AsyncStorage.getItem("@data_key")
@@ -79,6 +86,7 @@ export default function App() {
     }
   }
 
+  // Função para adicionar novo grupo
   const addGroup = () => {
     const newGroup = {
       id: Date.now(),
@@ -86,40 +94,39 @@ export default function App() {
       alarmes: [],
       grupoAtivo: true,
     }
-
     const newData = [...data, newGroup]
     setData(newData)
     storeData(newData)
-    setModalVisible(false)
+
+    // Abre o modal de criação de alarme e mantém o nome do grupo
     setModalAlarmVisible(true)
-    setGroupName("")
+
+    // Fecha o modal de criação de grupo
+    setModalVisible(false)
   }
 
-  const [datee, setDate] = useState(new Date())
-  const [mode, setMode] = useState("date")
-
-  const onChange = (event, selectedDate) => {
-    const currentDate = selectedDate || date
-    setShow(Platform.OS === "ios")
-    setDate(currentDate)
+  // Função para fechar o modal de criação de grupo
+  const closeModal = () => {
+    setModalVisible(false)
+    setGroupName("") // Reseta o nome do grupo apenas ao fechar o modal
   }
 
-  const showMode = (currentMode) => {
-    setShow(true)
-    setMode(currentMode)
+  // Função para mudar a hora
+  const onChange = (event, selectedTime) => {
+    const currentTime = selectedTime || time
+    setTime(currentTime)
+    setModalAlarmVisible(Platform.OS === "ios") // se for iOS, mantém o modal aberto após a seleção
   }
 
-  const showDatepicker = () => {
-    showMode("date")
-  }
-
-  const showTimepicker = () => {
-    showMode("time")
-  }
-
+  // Carrega dados ao inicializar
   useEffect(() => {
     loadData()
   }, [])
+
+  const handleTimeChange = (hour, minute) => {
+    // Faça algo com a hora e minuto selecionados
+    console.log(`Hora selecionada: ${hour}:${minute}`)
+  }
 
   return (
     <View style={styles.container}>
@@ -182,10 +189,7 @@ export default function App() {
         animationType="slide"
         transparent={true}
         visible={modalVisible}
-        onRequestClose={() => {
-          setModalVisible(!modalVisible)
-          setGroupName("")
-        }}
+        onRequestClose={closeModal}
       >
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
@@ -199,12 +203,7 @@ export default function App() {
               />
             </View>
             <View style={styles.modalButtons}>
-              <TouchableOpacity
-                onPress={() => {
-                  setModalVisible(!modalVisible)
-                  setGroupName("")
-                }}
-              >
+              <TouchableOpacity onPress={closeModal}>
                 <Text style={styles.buttonClose}>Cancelar</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={addGroup}>
@@ -222,7 +221,14 @@ export default function App() {
           setModalAlarmVisible(!modalAlarmVisible)
         }}
       >
-        <View style={styles.container}></View>
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <TouchableOpacity onPress={() => setTime(new Date())}>
+              <Text>Reset Time</Text>
+            </TouchableOpacity>
+            <TimePicker onTimeSelected={handleTimeChange} />
+          </View>
+        </View>
       </Modal>
     </View>
   )
