@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react"
+import { useFocusEffect } from "@react-navigation/native"
+
 import {
-  StyleSheet,
   View,
+  ScrollView,
   Text,
   TouchableOpacity,
   TouchableWithoutFeedback,
   TextInput,
   Modal,
-  Platform,
 } from "react-native"
 import DateTimePicker from "@react-native-community/datetimepicker"
 import TimePicker from "./components/TimePicker"
@@ -18,7 +19,7 @@ import { styles } from "./styles"
 import Header from "./components/Header"
 import { StatusBar } from "expo-status-bar"
 
-export default function App() {
+const Home = ({ navigation }) => {
   const [fontsLoaded] = useFonts({
     "nunito-regular": require("./assets/fonts/Nunito-Regular.ttf"),
     "nunito-medium": require("./assets/fonts/Nunito-Medium.ttf"),
@@ -26,7 +27,9 @@ export default function App() {
   const [data, setData] = useState([])
   const [modalVisible, setModalVisible] = useState(false)
   const [groupName, setGroupName] = useState("")
+  const [currentGroupId, setCurrentGroupId] = useState(null)
   const [modalAlarmVisible, setModalAlarmVisible] = useState(false)
+  const [diasSelecionados, setDiasSelecionados] = useState([])
   const [time, setTime] = useState(new Date())
   const todosOsDias = [
     "Domingo",
@@ -98,10 +101,9 @@ export default function App() {
     setData(newData)
     storeData(newData)
 
-    // Abre o modal de criação de alarme e mantém o nome do grupo
-    setModalAlarmVisible(true)
+    setCurrentGroupId(newGroup.id) // Armazenar o ID do novo grupo
 
-    // Fecha o modal de criação de grupo
+    setModalAlarmVisible(true)
     setModalVisible(false)
   }
 
@@ -111,80 +113,126 @@ export default function App() {
     setGroupName("") // Reseta o nome do grupo apenas ao fechar o modal
   }
 
-  // Função para mudar a hora
-  const onChange = (event, selectedTime) => {
-    const currentTime = selectedTime || time
-    setTime(currentTime)
-    setModalAlarmVisible(Platform.OS === "ios") // se for iOS, mantém o modal aberto após a seleção
+  const onDiasSelecionadosChange = (novosDias) => {
+    setDiasSelecionados(novosDias)
+  }
+
+  const addAlarm = () => {
+    const newAlarm = {
+      id: Date.now(),
+      nome: "Novo Alarme",
+      hora: `${hr.toString().padStart(2, "0")}:${min
+        .toString()
+        .padStart(2, "0")}`,
+      ativo: true,
+      dias: diasSelecionados,
+    }
+
+    // Atualizar o estado com o novo alarme
+    setData(
+      data.map((group) => {
+        if (group.id === currentGroupId) {
+          return {
+            ...group,
+            alarmes: [...group.alarmes, newAlarm],
+          }
+        }
+        return group
+      })
+    )
+
+    setModalAlarmVisible(false)
   }
 
   // Carrega dados ao inicializar
   useEffect(() => {
     loadData()
   }, [])
+  useFocusEffect(
+    React.useCallback(() => {
+      loadData()
+    }, [])
+  )
+
+  const [hr, setHr] = useState()
+  const [min, setMin] = useState()
 
   const handleTimeChange = (hour, minute) => {
-    // Faça algo com a hora e minuto selecionados
-    console.log(`Hora selecionada: ${hour}:${minute}`)
+    setHr(hour)
+    setMin(minute)
+    console.log(`Hora selecionada: ${hr}:${min}`)
   }
 
   return (
     <View style={styles.container}>
       <StatusBar style="auto" />
       <Header setModal={setModalVisible} />
-      <View style={styles.alarms}>
-        {data.map((item) => {
-          const alarmesAtivosMinutos = item.alarmes
-            .filter((alarme) => alarme.ativo)
-            .map((alarme) => converterHoraParaMinutos(alarme.hora))
+      <ScrollView style={styles.scroll}>
+        <View style={styles.alarms}>
+          {data.map((item) => {
+            const alarmesAtivosMinutos = item.alarmes
+              .filter((alarme) => alarme.ativo)
+              .map((alarme) => converterHoraParaMinutos(alarme.hora))
 
-          const menorHora = Math.min(...alarmesAtivosMinutos)
-          const maiorHora = Math.max(...alarmesAtivosMinutos)
+            const menorHora = Math.min(...alarmesAtivosMinutos)
+            const maiorHora = Math.max(...alarmesAtivosMinutos)
 
-          const horarioInicio = converterMinutosParaHora(menorHora)
-          const horarioFim = converterMinutosParaHora(maiorHora)
+            const horarioInicio = converterMinutosParaHora(menorHora)
+            const horarioFim = converterMinutosParaHora(maiorHora)
 
-          return (
-            <View key={item.id} style={styles.alarm}>
-              <TouchableOpacity style={styles.touchAlarm}>
-                <View style={styles.alarmInfo}>
-                  <Text style={styles.alarmTitle}>{item.nome}</Text>
-                  <Text style={styles.overline}>
-                    {item.alarmes.filter((alarme) => alarme.ativo).length}{" "}
-                    Alarmes ativos de {item.alarmes.length}
-                  </Text>
-                  <Text
-                    style={styles.caption}
-                  >{`${horarioInicio} - ${horarioFim}`}</Text>
-                </View>
-                <View style={styles.alarmDias}>
-                  {todosOsDias.map((diaSemana, index) => {
-                    const diaAtivo = item.alarmes.some(
-                      (alarme) =>
-                        alarme.ativo && alarme.dias.includes(diaSemana)
-                    )
-                    return (
-                      <View key={index} style={styles.alarmDia}>
-                        <Text style={styles.alarmOverline}>{diaSemana[0]}</Text>
-                        {diaAtivo && <View style={styles.after} />}
-                      </View>
-                    )
-                  })}
-                </View>
-              </TouchableOpacity>
-              <TouchableWithoutFeedback onPress={() => toggleSwitch(item.id)}>
-                <View style={styles.switchView}>
-                  <Switch
-                    value={item.grupoAtivo}
-                    onValueChange={() => toggleSwitch(item.id)}
-                    style={styles.switch}
-                  />
-                </View>
-              </TouchableWithoutFeedback>
-            </View>
-          )
-        })}
-      </View>
+            return (
+              <View key={item.id} style={styles.alarm}>
+                <TouchableOpacity
+                  style={styles.touchAlarm}
+                  onPress={() =>
+                    navigation.navigate("AlarmGroup", {
+                      group: item,
+                      data: data,
+                      storeData: storeData,
+                    })
+                  }
+                >
+                  <View style={styles.alarmInfo}>
+                    <Text style={styles.alarmTitle}>{item.nome}</Text>
+                    <Text style={styles.overline}>
+                      {item.alarmes.filter((alarme) => alarme.ativo).length}{" "}
+                      Alarmes ativos de {item.alarmes.length}
+                    </Text>
+                    <Text
+                      style={styles.caption}
+                    >{`${horarioInicio} - ${horarioFim}`}</Text>
+                  </View>
+                  <View style={styles.alarmDias}>
+                    {todosOsDias.map((diaSemana, index) => {
+                      const diaAtivo = item.alarmes.some(
+                        (alarme) =>
+                          alarme.ativo && alarme.dias.includes(diaSemana)
+                      )
+                      return (
+                        <View key={index} style={styles.alarmDia}>
+                          <Text style={styles.alarmOverline}>
+                            {diaSemana[0]}
+                          </Text>
+                          {diaAtivo && <View style={styles.after} />}
+                        </View>
+                      )
+                    })}
+                  </View>
+                </TouchableOpacity>
+                <TouchableWithoutFeedback onPress={() => toggleSwitch(item.id)}>
+                  <View style={styles.switchView}>
+                    <Switch
+                      value={item.grupoAtivo}
+                      onValueChange={() => toggleSwitch(item.id)}
+                      style={styles.switch}
+                    />
+                  </View>
+                </TouchableWithoutFeedback>
+              </View>
+            )
+          })}
+        </View>
+      </ScrollView>
       <Modal
         animationType="slide"
         transparent={true}
@@ -221,15 +269,20 @@ export default function App() {
           setModalAlarmVisible(!modalAlarmVisible)
         }}
       >
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            <TouchableOpacity onPress={() => setTime(new Date())}>
-              <Text>Reset Time</Text>
-            </TouchableOpacity>
-            <TimePicker onTimeSelected={handleTimeChange} />
+        <View style={styles.modalAlarm}>
+          <View style={styles.modaAlarmlView}>
+            <TimePicker
+              addAlarm={addAlarm}
+              alarm={modalAlarmVisible}
+              onTimeSelected={handleTimeChange}
+              todosDias={todosOsDias}
+              onDiasSelecionadosChange={onDiasSelecionadosChange}
+            />
           </View>
         </View>
       </Modal>
     </View>
   )
 }
+
+export default Home

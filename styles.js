@@ -31,8 +31,11 @@ export const styles = StyleSheet.create({
     fontSize: 48,
     lineHeight: 56,
   },
+  scroll: {
+    marginBottom: 16,
+  },
   alarms: {
-    gap: 32,
+    gap: 24,
   },
   alarm: {
     backgroundColor: "#FEFEFF",
@@ -99,12 +102,25 @@ export const styles = StyleSheet.create({
     justifyContent: "flex-end",
     alignItems: "center",
   },
+  modalAlarm: {
+    flex: 1,
+    justifyContent: "flex-end",
+    alignItems: "center",
+  },
   modalView: {
     width: "100%",
     backgroundColor: "white",
     borderTopRightRadius: 28,
     borderTopLeftRadius: 28,
     padding: 35,
+    elevation: 1,
+    gap: 24,
+  },
+  modaAlarmlView: {
+    width: "100%",
+    backgroundColor: "white",
+    borderTopRightRadius: 28,
+    borderTopLeftRadius: 28,
     elevation: 1,
     gap: 24,
   },
