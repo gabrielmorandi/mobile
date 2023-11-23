@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useRef } from "react"
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   ScrollView,
   Text,
   StyleSheet,
   TouchableOpacity,
-} from "react-native"
+} from "react-native";
 
 const TimePicker = ({
   addAlarm,
@@ -19,71 +19,71 @@ const TimePicker = ({
 }) => {
   const [selectedHour, setSelectedHour] = useState(
     currentHour ?? new Date().getHours()
-  )
+  );
   const [selectedMinute, setSelectedMinute] = useState(
     currentMinute ?? new Date().getMinutes()
-  )
+  );
 
-  const [diasSelecionados, setDiasSelecionados] = useState([])
+  const [diasSelecionados, setDiasSelecionados] = useState([]);
 
-  const hourScrollViewRef = useRef(null)
-  const minuteScrollViewRef = useRef(null)
+  const hourScrollViewRef = useRef(null);
+  const minuteScrollViewRef = useRef(null);
 
-  const itemHeight = 80 // Altura de cada item de hora/minuto
-  const scrollViewHeight = itemHeight * 3 // Altura do ScrollView para mostrar 3 itens
+  const itemHeight = 80; // Altura de cada item de hora/minuto
+  const scrollViewHeight = itemHeight * 3; // Altura do ScrollView para mostrar 3 itens
 
   useEffect(() => {
     hourScrollViewRef.current?.scrollTo({
       y: selectedHour * itemHeight,
       animated: false,
-    })
+    });
     minuteScrollViewRef.current?.scrollTo({
       y: selectedMinute * itemHeight,
       animated: false,
-    })
-  }, [])
+    });
+  }, []);
 
   useEffect(() => {
-    console.log(alarm)
-    onTimeSelected(selectedHour, selectedMinute)
-  }, [alarm])
+    console.log(alarm);
+    onTimeSelected(selectedHour, selectedMinute);
+  }, [alarm]);
 
   const handleScroll = (event, type) => {
-    const y = event.nativeEvent.contentOffset.y
-    const index = Math.floor(y / itemHeight)
+    const y = event.nativeEvent.contentOffset.y;
+    const index = Math.floor(y / itemHeight);
 
     if (type === "hour") {
-      const newHour = index % 24
-      setSelectedHour(newHour)
-      onTimeSelected(newHour, selectedMinute)
+      const newHour = index % 24;
+      setSelectedHour(newHour);
+      onTimeSelected(newHour, selectedMinute);
     } else {
-      const newMinute = index % 60
-      setSelectedMinute(newMinute)
-      onTimeSelected(selectedHour, newMinute)
+      const newMinute = index % 60;
+      setSelectedMinute(newMinute);
+      onTimeSelected(selectedHour, newMinute);
     }
-  }
+  };
 
   const renderTimeOptions = (count) => {
-    let options = []
+    let options = [];
     for (let i = 0; i < count; i++) {
       options.push(
         <View key={i} style={styles.timeItem}>
           <Text style={styles.timeText}>{i.toString().padStart(2, "0")}</Text>
         </View>
-      )
+      );
     }
-    return options
-  }
+    return options;
+  };
 
   const toggleDia = (dia) => {
     setDiasSelecionados((prev) => {
       const novosDiasSelecionados = prev.includes(dia)
         ? prev.filter((d) => d !== dia)
-        : [...prev, dia]
-      onDiasSelecionadosChange(novosDiasSelecionados) // Chama o callback
-      return novosDiasSelecionados
-    })
-  }
+        : [...prev, dia];
+      onDiasSelecionadosChange(novosDiasSelecionados); // Chama o callback
+      return novosDiasSelecionados;
+    });
+  };
 
   return (
     <View style={styles.containerAlarm}>
@@ -134,17 +134,17 @@ const TimePicker = ({
       </View>
       <View style={styles.alarmActions}>
         <View style={styles.modalButtons}>
-          <TouchableOpacity onPress={() => setAlarm(false)}>
+          {/* <TouchableOpacity onPress={() => setAlarm(false)}>
             <Text style={styles.buttonClose}>Cancelar</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           <TouchableOpacity onPress={() => addAlarm()}>
             <Text style={styles.buttonCreate}>Criar</Text>
           </TouchableOpacity>
         </View>
       </View>
     </View>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   containerAlarm: {
@@ -208,19 +208,24 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     padding: 16,
-    gap: 24,
+    gap: 32,
   },
   alarmDia: {
     flexDirection: "column",
   },
   alarmOverline: {
-    fontSize: 24,
+    fontSize: 28,
+    lineHeight: 32,
+    color: "#959598",
   },
   after: {
+    fontSize: 50,
+    lineHeight: 70,
+    color: "pink",
     backgroundColor: "#1B1D1F",
-    height: 1,
+    height: 2,
     borderRadius: 100,
   },
-})
+});
 
-export default TimePicker
+export default TimePicker;
