@@ -1,4 +1,5 @@
-import { StyleSheet } from "react-native"
+import { StyleSheet } from "react-native";
+
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -8,7 +9,7 @@ export const styles = StyleSheet.create({
     paddingTop: 64,
   },
   mainHeader: {
-    gap: 16,
+    gap: 8,
   },
   mainHeaderContent: {
     flexDirection: "row",
@@ -30,6 +31,22 @@ export const styles = StyleSheet.create({
     fontFamily: "nunito-regular",
     fontSize: 48,
     lineHeight: 56,
+  },
+  times: {
+    flexDirection: "row",
+    width: "100vh",
+    gap: 32,
+    alignItems: "baseline",
+  },
+  hour: {
+    fontFamily: "nunito-regular",
+    fontSize: 32,
+    lineHeight: 48,
+  },
+  date: {
+    fontFamily: "nunito-regular",
+    fontSize: 24,
+    lineHeight: 32,
   },
   scroll: {
     marginBottom: 16,
@@ -62,13 +79,54 @@ export const styles = StyleSheet.create({
   },
   overline: {
     fontFamily: "nunito-regular",
-    fontSize: 10,
+    fontSize: 15,
     lineHeight: 20,
+  },
+  containerTextAlarm: {
+    display: "flex",
+    alignItems: "center",
+    gap: 16,
+  },
+  noAlarmsTouch: {
+    display: "flex",
+    alignContent: "center",
+    alignItems: "center",
+    gap: 16,
+  },
+  noAlarmsTitle: {
+    fontFamily: "nunito-regular",
+    fontSize: 24,
+    lineHeight: 48,
+    letterSpacing: 0.048,
+  },
+  noAlarmsText: {
+    fontFamily: "nunito-regular",
+    fontSize: 16,
+    lineHeight: 32,
+    letterSpacing: 0.048,
+  },
+  noGroupAlarmsTouch: {
+    display: "flex",
+    alignContent: "center",
+    alignItems: "center",
+    gap: 16,
+  },
+  noGroupAlarmsTitle: {
+    fontFamily: "nunito-regular",
+    fontSize: 24,
+    lineHeight: 48,
+    letterSpacing: 0.048,
+  },
+  noGroupAlarmsText: {
+    fontFamily: "nunito-regular",
+    fontSize: 16,
+    lineHeight: 32,
+    letterSpacing: 0.048,
   },
   alarmOverline: {
     fontFamily: "nunito-regular",
-    fontSize: 10,
-    lineHeight: 20,
+    fontSize: 20,
+    lineHeight: 28,
   },
   caption: {
     fontFamily: "nunito-regular",
@@ -166,4 +224,8 @@ export const styles = StyleSheet.create({
     fontFamily: "nunito-medium",
     fontSize: 16,
   },
-})
+});
+
+
+
+
