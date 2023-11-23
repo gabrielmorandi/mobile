@@ -35,6 +35,7 @@ export const styles = StyleSheet.create({
     marginBottom: 16,
   },
   alarms: {
+    marginBottom: 16,
     gap: 24,
   },
   alarm: {

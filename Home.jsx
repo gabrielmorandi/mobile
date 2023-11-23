@@ -31,6 +31,8 @@ const Home = ({ navigation }) => {
   const [modalAlarmVisible, setModalAlarmVisible] = useState(false)
   const [diasSelecionados, setDiasSelecionados] = useState([])
   const [time, setTime] = useState(new Date())
+  const [selectedHour, setSelectedHour] = useState(new Date().getHours())
+  const [selectedMinute, setSelectedMinute] = useState(new Date().getMinutes())
   const todosOsDias = [
     "Domingo",
     "Segunda",
@@ -103,8 +105,9 @@ const Home = ({ navigation }) => {
 
     setCurrentGroupId(newGroup.id) // Armazenar o ID do novo grupo
 
-    setModalAlarmVisible(true)
+    openAlarmModal()
     setModalVisible(false)
+    setGroupName("")
   }
 
   // Função para fechar o modal de criação de grupo
@@ -115,6 +118,17 @@ const Home = ({ navigation }) => {
 
   const onDiasSelecionadosChange = (novosDias) => {
     setDiasSelecionados(novosDias)
+  }
+
+  const openAlarmModal = () => {
+    const currentHour = new Date().getHours()
+    const currentMinute = new Date().getMinutes()
+
+    setSelectedHour(currentHour)
+    setSelectedMinute(currentMinute)
+    setHr(currentHour)
+    setMin(currentMinute)
+    setModalAlarmVisible(true)
   }
 
   const addAlarm = () => {
@@ -158,15 +172,30 @@ const Home = ({ navigation }) => {
   const [min, setMin] = useState()
 
   const handleTimeChange = (hour, minute) => {
-    setHr(hour)
-    setMin(minute)
-    console.log(`Hora selecionada: ${hr}:${min}`)
+    const newHour = hour !== undefined ? hour : selectedHour
+    const newMinute = minute !== undefined ? minute : selectedMinute
+
+    setSelectedHour(newHour)
+    setSelectedMinute(newMinute)
+    setHr(newHour)
+    setMin(newMinute)
+
+    console.log(`Hora selecionada: ${newHour}:${newMinute}`)
+  }
+
+  const desativarTodosOsGrupos = () => {
+    const newData = data.map((grupo) => ({ ...grupo, grupoAtivo: false }))
+    setData(newData)
+    storeData(newData)
   }
 
   return (
     <View style={styles.container}>
       <StatusBar style="auto" />
-      <Header setModal={setModalVisible} />
+      <Header
+        setModal={setModalVisible}
+        onDesativarTodosGrupos={desativarTodosOsGrupos}
+      />
       <ScrollView style={styles.scroll}>
         <View style={styles.alarms}>
           {data.map((item) => {
@@ -174,11 +203,16 @@ const Home = ({ navigation }) => {
               .filter((alarme) => alarme.ativo)
               .map((alarme) => converterHoraParaMinutos(alarme.hora))
 
-            const menorHora = Math.min(...alarmesAtivosMinutos)
-            const maiorHora = Math.max(...alarmesAtivosMinutos)
-
-            const horarioInicio = converterMinutosParaHora(menorHora)
-            const horarioFim = converterMinutosParaHora(maiorHora)
+            let horarioInicio, horarioFim
+            if (alarmesAtivosMinutos.length > 0) {
+              const menorHora = Math.min(...alarmesAtivosMinutos)
+              const maiorHora = Math.max(...alarmesAtivosMinutos)
+              horarioInicio = converterMinutosParaHora(menorHora)
+              horarioFim = converterMinutosParaHora(maiorHora)
+            } else {
+              horarioInicio = ""
+              horarioFim = ""
+            }
 
             return (
               <View key={item.id} style={styles.alarm}>
@@ -274,9 +308,12 @@ const Home = ({ navigation }) => {
             <TimePicker
               addAlarm={addAlarm}
               alarm={modalAlarmVisible}
+              setAlarm={setModalAlarmVisible}
               onTimeSelected={handleTimeChange}
               todosDias={todosOsDias}
               onDiasSelecionadosChange={onDiasSelecionadosChange}
+              currentHour={hr}
+              currentMinute={min}
             />
           </View>
         </View>

@@ -10,12 +10,20 @@ import {
 const TimePicker = ({
   addAlarm,
   alarm,
+  setAlarm,
   onTimeSelected,
   todosDias,
   onDiasSelecionadosChange,
+  currentHour,
+  currentMinute,
 }) => {
-  const [selectedHour, setSelectedHour] = useState(new Date().getHours())
-  const [selectedMinute, setSelectedMinute] = useState(new Date().getMinutes())
+  const [selectedHour, setSelectedHour] = useState(
+    currentHour ?? new Date().getHours()
+  )
+  const [selectedMinute, setSelectedMinute] = useState(
+    currentMinute ?? new Date().getMinutes()
+  )
+
   const [diasSelecionados, setDiasSelecionados] = useState([])
 
   const hourScrollViewRef = useRef(null)
@@ -45,11 +53,13 @@ const TimePicker = ({
     const index = Math.floor(y / itemHeight)
 
     if (type === "hour") {
-      const newIndex = index % 24
-      onTimeSelected(newIndex, selectedMinute)
+      const newHour = index % 24
+      setSelectedHour(newHour)
+      onTimeSelected(newHour, selectedMinute)
     } else {
-      const newIndex = index % 60
-      onTimeSelected(selectedHour, newIndex)
+      const newMinute = index % 60
+      setSelectedMinute(newMinute)
+      onTimeSelected(selectedHour, newMinute)
     }
   }
 
@@ -124,7 +134,7 @@ const TimePicker = ({
       </View>
       <View style={styles.alarmActions}>
         <View style={styles.modalButtons}>
-          <TouchableOpacity onPress={() => alarm(false)}>
+          <TouchableOpacity onPress={() => setAlarm(false)}>
             <Text style={styles.buttonClose}>Cancelar</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => addAlarm()}>
@@ -176,6 +186,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 12,
+    paddingBottom: 24,
   },
   buttonClose: {
     color: "#959598",

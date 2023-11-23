@@ -4,7 +4,7 @@ import { Text, View, TouchableOpacity, Modal } from "react-native"
 import Svg, { Path } from "react-native-svg"
 import { styles } from "../../styles"
 
-const Header = ({ setModal }) => {
+const Header = ({ setModal, onDesativarTodosGrupos }) => {
   const [greeting, setGreeting] = useState("")
 
   const updateGreeting = () => {
@@ -37,18 +37,20 @@ const Header = ({ setModal }) => {
               />
             </Svg>
           </TouchableOpacity>
-          <Svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-          >
-            <Path
-              d="M17.284 3.707L18.696 2.291L21.706 5.291L20.293 6.708L17.284 3.707ZM6.69798 3.707L3.70798 6.706L2.28998 5.294L5.27998 2.294L6.69798 3.707ZM12 4C7.12198 4 2.99998 8.121 2.99998 13C2.99998 17.879 7.12198 22 12 22C16.879 22 21 17.879 21 13C21 8.121 16.879 4 12 4ZM16 17H8.13098L12.131 11H7.99998V9H15.868L14.833 10.554L14.832 10.555L11.869 15H16V17Z"
-              fill="#1B1D1F"
-            />
-          </Svg>
+          <TouchableOpacity onPress={onDesativarTodosGrupos}>
+            <Svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+            >
+              <Path
+                d="M17.284 3.707L18.696 2.291L21.706 5.291L20.293 6.708L17.284 3.707ZM6.69798 3.707L3.70798 6.706L2.28998 5.294L5.27998 2.294L6.69798 3.707ZM12 4C7.12198 4 2.99998 8.121 2.99998 13C2.99998 17.879 7.12198 22 12 22C16.879 22 21 17.879 21 13C21 8.121 16.879 4 12 4ZM16 17H8.13098L12.131 11H7.99998V9H15.868L14.833 10.554L14.832 10.555L11.869 15H16V17Z"
+                fill="#1B1D1F"
+              />
+            </Svg>
+          </TouchableOpacity>
         </View>
       </View>
     </View>
