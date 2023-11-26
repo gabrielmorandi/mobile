@@ -1,5 +1,4 @@
-import {
-  View,
+import {  View,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -7,6 +6,8 @@ import {
   TextInput,
   Modal,
 } from "react-native";
+import React, { useState, useEffect } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 import TimePicker from "./components/TimePicker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Switch } from "react-native-paper";
