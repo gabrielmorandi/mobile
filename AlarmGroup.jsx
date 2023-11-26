@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
-import {
+import React, { useState, useEffect, useRef } from "react";import {
   View,
   ScrollView,
   Text,
@@ -10,10 +9,12 @@ import {
 } from "react-native";
 import { Switch } from "react-native-paper";
 import Svg, { Path } from "react-native-svg";
-import * as Notifications from "expo-notifications";
 import TimePicker from "./components/TimePicker";
 import { styles } from "./styles";
+import * as Notifications from "expo-notifications";
 import HeaderAlarmGroup from "./components/HeaderAlarmGroup";
+import schedulePushNotification from "./utils/ExpoNotifications/ScheduleNotification.js";
+
 const AlarmGroup = ({ route, navigation }) => {
   const [group, setGroup] = useState(route.params.group);
   const { data, storeData } = route.params;
@@ -33,31 +34,6 @@ const AlarmGroup = ({ route, navigation }) => {
     "Sexta",
     "Sábado",
   ];
-  const channelId = "default"; // Identificador do canal
-
-  useEffect(() => {
-    const setupNotifications = async () => {
-      await Notifications.setNotificationChannelAsync(channelId, {
-        name: "default",
-        importance: Notifications.AndroidImportance.MAX,
-        vibrationPattern: [0, 250, 250, 250],
-        lightColor: "#FF231F7C",
-      });
-
-      // Agendar uma notificação de teste
-      await Notifications.scheduleNotificationAsync({
-        content: {
-          title: "Teste de Notificação",
-          body: "Esta é uma notificação de teste.",
-        },
-        trigger: {
-          seconds: 5, // notificação após 5 segundos
-        },
-      });
-    };
-
-    setupNotifications();
-  }, []);
 
   const toggleAlarmeAtivo = (alarmeId) => {
     const novoGrupo = { ...group };
@@ -81,11 +57,10 @@ const AlarmGroup = ({ route, navigation }) => {
   const handleOpenModal = () => {
     setModalAlarmVisible(true);
   };
-
   const addAlarm = async () => {
     const newAlarm = {
       id: Date.now(),
-      nome: `nome: ${Date.now()}, ${group.nome}`, // Corrigido aqui para usar group.nome
+      nome: `nome: ${Date.now()}, ${group.nome}`,
       hora: `${hr.toString().padStart(2, "0")}:${min
         .toString()
         .padStart(2, "0")}`,
@@ -93,53 +68,6 @@ const AlarmGroup = ({ route, navigation }) => {
       dias: diasSelecionados,
     };
 
-    const { id, nome, hora, dias } = newAlarm; // Corrigido aqui para usar newAlarm
-
-    // Extrair horas e minutos do horário do alarme
-    const [hour, minute] = hora.split(":").map(Number);
-
-    // Calcular o próximo horário do alarme
-    const now = new Date();
-    let nextAlarmTime = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate(),
-      hour,
-      minute
-    );
-
-    // Se o próximo horário for no passado, ajustar para o próximo dia
-    if (nextAlarmTime <= now) {
-      nextAlarmTime.setDate(now.getDate() + 1);
-    }
-
-    // Adicione um log antes da chamada para `scheduleNotificationAsync`
-    console.log("Agendando notificação. Detalhes:");
-
-    console.log("  Título:", "Alarme");
-    console.log("  Corpo:", `Alarme ${nome} está ativado!`);
-    console.log(
-      "  Som:",
-      "./assets/sounds/mixkit-city-alert-siren-loop-1008.wav"
-    );
-    console.log("  Canal ID:", channelId);
-    console.log("  Data agendada:", nextAlarmTime);
-
-    // Configurar a notificação
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: "Alarme",
-        body: `Alarme ${nome} está ativado!`,
-        sound: "./assets/sounds/mixkit-city-alert-siren-loop-1008.wav",
-      },
-      trigger: {
-        channelId: channelId,
-        seconds: (nextAlarmTime.getTime() - now.getTime()) / 1000,
-        repeats: true,
-      },
-    });
-
-    console.log(`Notificação agendada para ${hora} nos dias: ${dias}`);
     const updatedGroup = {
       ...group,
       alarmes: [...group.alarmes, newAlarm],
