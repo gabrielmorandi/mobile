@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet } from "react-native"
 
 export const styles = StyleSheet.create({
   container: {
@@ -63,7 +63,8 @@ export const styles = StyleSheet.create({
     alignItems: "center",
   },
   touchAlarm: {
-    padding: 16,
+    paddingVertical: 16,
+    paddingLeft: 16,
     borderTopLeftRadius: 16,
     borderBottomLeftRadius: 16,
     flex: 1,
@@ -79,7 +80,7 @@ export const styles = StyleSheet.create({
   },
   overline: {
     fontFamily: "nunito-regular",
-    fontSize: 15,
+    fontSize: 12,
     lineHeight: 20,
   },
   containerTextAlarm: {
@@ -125,7 +126,7 @@ export const styles = StyleSheet.create({
   },
   alarmOverline: {
     fontFamily: "nunito-regular",
-    fontSize: 20,
+    fontSize: 14,
     lineHeight: 28,
   },
   caption: {
@@ -224,8 +225,4 @@ export const styles = StyleSheet.create({
     fontFamily: "nunito-medium",
     fontSize: 16,
   },
-});
-
-
-
-
+})

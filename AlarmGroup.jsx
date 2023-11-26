@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";import {
+import React, { useState, useEffect, useRef } from "react"
+import {
   View,
   ScrollView,
   Text,
@@ -6,24 +7,24 @@ import React, { useState, useEffect, useRef } from "react";import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   Modal,
-} from "react-native";
-import { Switch } from "react-native-paper";
-import Svg, { Path } from "react-native-svg";
-import TimePicker from "./components/TimePicker";
-import { styles } from "./styles";
-import * as Notifications from "expo-notifications";
-import HeaderAlarmGroup from "./components/HeaderAlarmGroup";
-import schedulePushNotification from "./utils/ExpoNotifications/ScheduleNotification.js";
+} from "react-native"
+import { Switch } from "react-native-paper"
+import Svg, { Path } from "react-native-svg"
+import TimePicker from "./components/TimePicker"
+import { styles } from "./styles"
+import * as Notifications from "expo-notifications"
+import HeaderAlarmGroup from "./components/HeaderAlarmGroup"
+import schedulePushNotification from "./utils/ExpoNotifications/ScheduleNotification.js"
 
 const AlarmGroup = ({ route, navigation }) => {
-  const [group, setGroup] = useState(route.params.group);
-  const { data, storeData } = route.params;
-  const [modalAlarmVisible, setModalAlarmVisible] = useState(false);
-  const [hr, setHr] = useState();
-  const [min, setMin] = useState();
-  const [diasSelecionados, setDiasSelecionados] = useState([]);
-  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
-  const [selectedAlarmId, setSelectedAlarmId] = useState(null);
+  const [group, setGroup] = useState(route.params.group)
+  const { data, storeData } = route.params
+  const [modalAlarmVisible, setModalAlarmVisible] = useState(false)
+  const [hr, setHr] = useState()
+  const [min, setMin] = useState()
+  const [diasSelecionados, setDiasSelecionados] = useState([])
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false)
+  const [selectedAlarmId, setSelectedAlarmId] = useState(null)
 
   const todosOsDias = [
     "Domingo",
@@ -33,30 +34,30 @@ const AlarmGroup = ({ route, navigation }) => {
     "Quinta",
     "Sexta",
     "Sábado",
-  ];
+  ]
 
   const toggleAlarmeAtivo = (alarmeId) => {
-    const novoGrupo = { ...group };
+    const novoGrupo = { ...group }
     novoGrupo.alarmes = novoGrupo.alarmes.map((alarme) => {
       if (alarme.id === alarmeId) {
-        return { ...alarme, ativo: !alarme.ativo };
+        return { ...alarme, ativo: !alarme.ativo }
       }
-      return alarme;
-    });
+      return alarme
+    })
 
-    setGroup(novoGrupo);
+    setGroup(novoGrupo)
 
     // Atualiza o array data com o grupo modificado e salva no AsyncStorage
     const newData = data.map((item) =>
       item.id === novoGrupo.id ? novoGrupo : item
-    );
-    storeData(newData);
-  };
-  console.log(group);
+    )
+    storeData(newData)
+  }
+  console.log(group)
 
   const handleOpenModal = () => {
-    setModalAlarmVisible(true);
-  };
+    setModalAlarmVisible(true)
+  }
   const addAlarm = async () => {
     const newAlarm = {
       id: Date.now(),
@@ -66,72 +67,72 @@ const AlarmGroup = ({ route, navigation }) => {
         .padStart(2, "0")}`,
       ativo: true,
       dias: diasSelecionados,
-    };
+    }
 
     const updatedGroup = {
       ...group,
       alarmes: [...group.alarmes, newAlarm],
-    };
-    setGroup(updatedGroup);
+    }
+    setGroup(updatedGroup)
 
     // Atualizar o array data com o grupo modificado e salva no AsyncStorage
     const newData = data.map((item) =>
       item.id === group.id ? updatedGroup : item
-    );
-    storeData(newData);
+    )
+    storeData(newData)
 
-    setModalAlarmVisible(false);
-  };
+    setModalAlarmVisible(false)
+  }
 
   const handleTimeChange = (hour, minute) => {
-    setHr(hour);
-    setMin(minute);
-    console.log(`Hora selecionada: ${hr}:${min}`);
-  };
+    setHr(hour)
+    setMin(minute)
+    console.log(`Hora selecionada: ${hr}:${min}`)
+  }
   const onDiasSelecionadosChange = (novosDias) => {
-    setDiasSelecionados(novosDias);
-  };
+    setDiasSelecionados(novosDias)
+  }
 
   const deleteAlarm = async (alarmId) => {
     const updatedGroup = {
       ...group,
       alarmes: group.alarmes.filter((alarme) => alarme.id !== alarmId),
-    };
-    setGroup(updatedGroup);
+    }
+    setGroup(updatedGroup)
 
     const newData = data.map((item) =>
       item.id === group.id ? updatedGroup : item
-    );
-    storeData(newData);
+    )
+    storeData(newData)
 
-    setIsDeleteModalVisible(false);
-  };
+    setIsDeleteModalVisible(false)
+  }
 
   const onAlarmPress = (alarmId) => {
-    console.log("Abrindo modal de exclusão para o alarme:", alarmId);
-    setSelectedAlarmId(alarmId);
-    setIsDeleteModalVisible(true);
-  };
+    console.log("Abrindo modal de exclusão para o alarme:", alarmId)
+    setSelectedAlarmId(alarmId)
+    setIsDeleteModalVisible(true)
+  }
 
   const onDeleteGroup = () => {
-    const newData = data.filter((item) => item.id !== group.id);
-    storeData(newData);
-    navigation.goBack();
-  };
+    const newData = data.filter((item) => item.id !== group.id)
+    storeData(newData)
+    navigation.goBack()
+  }
 
   const deactivateAllAlarms = () => {
     const updatedGroup = {
       ...group,
       alarmes: group.alarmes.map((alarme) => ({ ...alarme, ativo: false })),
-    };
-    setGroup(updatedGroup);
+    }
+    setGroup(updatedGroup)
 
     // Atualizar o array data com o grupo modificado e salvar no AsyncStorage
     const newData = data.map((item) =>
       item.id === group.id ? updatedGroup : item
-    );
-    storeData(newData);
-  };
+    )
+    storeData(newData)
+  }
 
   return (
     <View style={styles.container}>
@@ -146,7 +147,7 @@ const AlarmGroup = ({ route, navigation }) => {
         transparent={true}
         visible={modalAlarmVisible}
         onRequestClose={() => {
-          setModalAlarmVisible(!modalAlarmVisible);
+          setModalAlarmVisible(!modalAlarmVisible)
         }}
       >
         <View style={styles.modalAlarm}>
@@ -193,7 +194,7 @@ const AlarmGroup = ({ route, navigation }) => {
                   </View>
                   <View style={styles.alarmDias}>
                     {todosOsDias.map((diaSemana, index) => {
-                      const diaAtivo = alarme.dias.includes(diaSemana);
+                      const diaAtivo = alarme.dias.includes(diaSemana)
                       return (
                         <View key={index} style={styles.alarmDia}>
                           <Text style={styles.alarmOverline}>
@@ -201,7 +202,7 @@ const AlarmGroup = ({ route, navigation }) => {
                           </Text>
                           {diaAtivo && <View style={styles.after} />}
                         </View>
-                      );
+                      )
                     })}
                   </View>
                 </TouchableOpacity>
@@ -221,7 +222,6 @@ const AlarmGroup = ({ route, navigation }) => {
           )}
         </View>
       </ScrollView>
-
       <Modal
         animationType="slide"
         transparent={true}
@@ -250,11 +250,11 @@ const AlarmGroup = ({ route, navigation }) => {
         </View>
       </Modal>
     </View>
-  );
-};
+  )
+}
 
 const stylesIn = StyleSheet.create({
   alarmTitle: { fontSize: 24, color: "#575759" },
-});
+})
 
-export default AlarmGroup;
+export default AlarmGroup

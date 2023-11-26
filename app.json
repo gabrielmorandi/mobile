@@ -9,22 +9,18 @@
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#eeeef0"
     },
     "plugins": [
       [
         "expo-notifications",
         {
           "color": "pink",
-          "sounds": [
-            "./assets/sounds/alarm-clock-short-6402.mp3"
-          ]
+          "sounds": ["./assets/sounds/alarm-clock-short-6402.mp3"]
         }
       ]
     ],
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true
     },
