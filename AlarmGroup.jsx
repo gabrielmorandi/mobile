@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";import {
+import React, { useState, useEffect, useRef } from "react";
+import {
   View,
   ScrollView,
   Text,
@@ -50,18 +51,11 @@ const AlarmGroup = ({ route, navigation }) => {
     "Sábado",
   ];
 
-  const toggleAlarmeAtivo = async (alarmeId) => {
+  const toggleAlarmeAtivo = (alarmeId) => {
     const novoGrupo = { ...group };
     novoGrupo.alarmes = novoGrupo.alarmes.map((alarme) => {
       if (alarme.id === alarmeId) {
-        // Inverte o estado do alarme
-        const newStatus = !alarme.ativo;
-
-        // Atualiza o estado do alarme
-        const updatedAlarme = { ...alarme, ativo: newStatus };
-
-        // Atualiza o array de alarmes no grupo
-        return updatedAlarme;
+        return { ...alarme, ativo: !alarme.ativo };
       }
       return alarme;
     });
@@ -73,23 +67,6 @@ const AlarmGroup = ({ route, navigation }) => {
       item.id === novoGrupo.id ? novoGrupo : item
     );
     storeData(newData);
-
-    // Obtém o alarme atualizado com base no ID
-    const alarmeAtualizado = novoGrupo.alarmes.find(
-      (alarme) => alarme.id === alarmeId
-    );
-
-    // Verifica o novo estado do alarme e agenda ou cancela a notificação
-    const shouldCancelNotification = !alarmeAtualizado.ativo;
-    const notificationId = await schedulePushNotifications(
-      alarmeAtualizado,
-      shouldCancelNotification
-    );
-
-    // Atualiza o notificationId no objeto do alarme
-    alarmeAtualizado.notificationId = shouldCancelNotification
-      ? null
-      : notificationId;
   };
   console.log(group);
 
@@ -110,8 +87,7 @@ const AlarmGroup = ({ route, navigation }) => {
 
     const now = new Date();
     const newAlarm = {
-      id: Date.now() + 1,
-      notificationId: null,
+      id: Date.now(),
       nome: `nome: ${Date.now()}, ${group.nome}`,
       hora: `${
         hr?.toString().padStart(2, "0") ||
@@ -137,17 +113,8 @@ const AlarmGroup = ({ route, navigation }) => {
     );
     storeData(newData);
 
-    const switchValue = newAlarm.ativo;
-    const shouldCancelNotification = !switchValue;
+    schedulePushNotifications(newAlarm);
 
-    // Chama a função passando o alarme e o valor do switch
-    const notificationId = await schedulePushNotifications(
-      newAlarm,
-      shouldCancelNotification
-    );
-
-    // Atualiza o notificationId no objeto do alarme
-    newAlarm.notificationId = notificationId;
     openAlertModal(
       `Grupo ${group.nome}`,
       `O alarme para o horário ${newAlarm.hora} e dia(s) ${newAlarm.dias} foi criado com sucesso!`,
