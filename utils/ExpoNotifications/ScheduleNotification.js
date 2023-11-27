@@ -23,7 +23,7 @@ async function schedulePushNotifications(alarm) {
 
   const { id, nome, hora, ativo, dias, grupo } = alarm;
 
-  console.warn("Array recebido --->", alarm);
+  console.log("Array recebido --->", alarm);
 
   // Mapeia os dias da semana corretamente
   const mappedDias = dias.map((dia) => getDayFromWeekDay(dia));
@@ -37,6 +37,7 @@ async function schedulePushNotifications(alarm) {
     );
 
     if (nextNotificationDate) {
+      // Agenda a notificação para a próxima ocorrência na hora especificada
       const Notify = await Notifications.scheduleNotificationAsync({
         content: {
           id: id,
@@ -56,8 +57,9 @@ async function schedulePushNotifications(alarm) {
         locale: ptBR,
       });
 
-      console.warn(`Alerta criado: ${Notify} - ${formattedDate} - ${selectedDay}`);
-       return Notify; // Retorna o ID da notificação
+      console.log(
+        `Alerta criado: ${Notify} - ${formattedDate} - ${selectedDay}`
+      );
     } else {
       Alert.alert(
         "Não foi possível calcular a próxima ocorrência da notificação."
@@ -76,10 +78,10 @@ function calculateNextNotificationDate(desiredTime, desiredWeekday) {
   notificationTime.setMinutes(parseInt(timeComponents[1], 10));
   notificationTime.setSeconds(0);
 
-  // Obtém o dia da semana atual
-  const currentDay = notificationTime.getDay();
+  const currentDayNumber = new Date().getDay(); // Isso retornará 1 para segunda-feira
+  const currentDayName = Object.values(weekDays)[currentDayNumber];
+  const currentDay = getDayFromWeekDay(currentDayName);
 
-  // Calcula a diferença de minutos entre o dia desejado e o dia atual
   let minutesUntilNotification = 0;
 
   if (currentDay === desiredWeekday) {
