@@ -31,7 +31,7 @@ const Header = ({ setModal, onDesativarTodosGrupos }) => {
 
   useEffect(() => {
     updateGreeting();
-    const intervalId = setInterval(updateGreeting, 60000);
+    const intervalId = setInterval(updateGreeting, 30000);
 
     return () => clearInterval(intervalId);
   }, []);

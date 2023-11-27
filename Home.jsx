@@ -312,7 +312,7 @@ const Home = ({ navigation }) => {
           </View>
         </View>
       </Modal>
-      <Modal
+      {/* <Modal
         animationType="slide"
         transparent={true}
         visible={modalAlarmVisible}
@@ -334,7 +334,7 @@ const Home = ({ navigation }) => {
             />
           </View>
         </View>
-      </Modal>
+      </Modal> */}
     </View>
   )
 }

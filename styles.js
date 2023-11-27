@@ -1,6 +1,4 @@
-import { StyleSheet } from "react-native"
-
-export const styles = StyleSheet.create({
+import { StyleSheet } from "react-native";export const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#EEEEF0",
@@ -162,6 +160,12 @@ export const styles = StyleSheet.create({
     justifyContent: "flex-end",
     alignItems: "center",
   },
+  centeredViewAlert: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 22,
+  },
   modalAlarm: {
     flex: 1,
     justifyContent: "flex-end",
@@ -175,6 +179,22 @@ export const styles = StyleSheet.create({
     padding: 35,
     elevation: 1,
     gap: 24,
+  },
+  modalViewAlert: {
+    margin: 20,
+    gap: 8,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 20,
+    alignItems: "left",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
   },
   modaAlarmlView: {
     width: "100%",
@@ -191,6 +211,12 @@ export const styles = StyleSheet.create({
     color: "#70797E",
     fontFamily: "nunito-medium",
     fontSize: 16,
+    lineHeight: 32,
+  },
+  modalTextAlert: {
+    color: "#70797E",
+    fontFamily: "nunito-medium",
+    fontSize: 24,
     lineHeight: 32,
   },
   input: {
@@ -216,6 +242,14 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 10,
   },
+  buttonCloseAlert: {
+    color: "#575759",
+    fontFamily: "nunito-regular",
+    fontSize: 24,
+    paddingHorizontal: 24,
+    paddingVertical: 10,
+    alignItems: "center",
+  },
   buttonCreate: {
     paddingHorizontal: 24,
     paddingVertical: 10,
@@ -225,4 +259,4 @@ export const styles = StyleSheet.create({
     fontFamily: "nunito-medium",
     fontSize: 16,
   },
-})
+});

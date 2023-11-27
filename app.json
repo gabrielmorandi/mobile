@@ -15,7 +15,6 @@
       [
         "expo-notifications",
         {
-          "color": "pink",
           "sounds": ["./assets/sounds/alarm-clock-short-6402.mp3"]
         }
       ]
