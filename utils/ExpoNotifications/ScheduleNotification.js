@@ -23,7 +23,7 @@ async function schedulePushNotifications(alarm) {
 
   const { id, nome, hora, ativo, dias, grupo } = alarm;
 
-  console.log("Array recebido --->", alarm);
+  console.warn("Array recebido --->", alarm);
 
   // Mapeia os dias da semana corretamente
   const mappedDias = dias.map((dia) => getDayFromWeekDay(dia));
@@ -37,7 +37,6 @@ async function schedulePushNotifications(alarm) {
     );
 
     if (nextNotificationDate) {
-      // Agenda a notificação para a próxima ocorrência na hora especificada
       const Notify = await Notifications.scheduleNotificationAsync({
         content: {
           id: id,
@@ -57,7 +56,8 @@ async function schedulePushNotifications(alarm) {
         locale: ptBR,
       });
 
-      console.log(`Alerta criado: ${Notify} - ${formattedDate}`);
+      console.warn(`Alerta criado: ${Notify} - ${formattedDate} - ${selectedDay}`);
+       return Notify; // Retorna o ID da notificação
     } else {
       Alert.alert(
         "Não foi possível calcular a próxima ocorrência da notificação."
@@ -79,16 +79,36 @@ function calculateNextNotificationDate(desiredTime, desiredWeekday) {
   // Obtém o dia da semana atual
   const currentDay = notificationTime.getDay();
 
-  // Calcula a diferença de dias entre o dia desejado e o dia atual
-  let daysUntilNotification = desiredWeekday - currentDay;
-  if (daysUntilNotification <= 0) {
-    // Se o dia desejado já passou nesta semana, ajusta para a próxima semana
-    daysUntilNotification += 7;
+  // Calcula a diferença de minutos entre o dia desejado e o dia atual
+  let minutesUntilNotification = 0;
+
+  if (currentDay === desiredWeekday) {
+    const currentTime = Date.now();
+    const desiredTimeMinutes =
+      notificationTime.getHours() * 60 + notificationTime.getMinutes();
+    const currentMinutes =
+      new Date(currentTime).getHours() * 60 +
+      new Date(currentTime).getMinutes();
+
+    console.log(
+      "ATUAL TIME:",
+      currentMinutes,
+      "TEMPO DESEJADO:",
+      desiredTimeMinutes
+    );
+
+    // Se o horário desejado for menor ou igual ao horário atual, ajusta para a próxima semana
+    if (currentMinutes >= desiredTimeMinutes) {
+      minutesUntilNotification += 7 * 24 * 60; // avança para a próxima semana
+    }
   }
+
+  // Calcula a diferença de minutos entre o dia desejado e o dia atual
+  minutesUntilNotification += ((desiredWeekday - currentDay + 7) % 7) * 24 * 60;
 
   // Calcula a data da próxima ocorrência da notificação
   const nextNotificationDate = new Date(
-    notificationTime.getTime() + daysUntilNotification * 24 * 60 * 60 * 1000
+    notificationTime.getTime() + minutesUntilNotification * 60 * 1000
   );
 
   return nextNotificationDate;
