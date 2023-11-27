@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
-import {
+import React, { useState, useEffect, useRef } from "react";import {
   View,
   ScrollView,
   Text,
@@ -14,6 +13,7 @@ import TimePicker from "./components/TimePicker";
 import { styles } from "./styles";
 import HeaderAlarmGroup from "./components/HeaderAlarmGroup";
 import schedulePushNotifications from "./utils/ExpoNotifications/scheduleNotification";
+import cancelNotification from "./utils/ExpoNotifications/cancelNotification";
 const AlarmGroup = ({ route, navigation }) => {
   const [group, setGroup] = useState(route.params.group);
   const { data, storeData } = route.params;
@@ -26,6 +26,7 @@ const AlarmGroup = ({ route, navigation }) => {
   const [alertModalVisible, setAlertModalVisible] = useState(false);
   const [alertTitle, setAlertTitle] = useState("");
   const [alertMessage, setAlertMessage] = useState("");
+  const [isSwitchOn, setIsSwitchOn] = useState(true);
 
   const openAlertModal = (title, message) => {
     setAlertTitle(title);
@@ -51,7 +52,7 @@ const AlarmGroup = ({ route, navigation }) => {
     "Sábado",
   ];
 
-  const toggleAlarmeAtivo = (alarmeId) => {
+  const toggleAlarmeAtivo = async (alarmeId) => {
     const novoGrupo = { ...group };
     novoGrupo.alarmes = novoGrupo.alarmes.map((alarme) => {
       if (alarme.id === alarmeId) {
@@ -67,8 +68,22 @@ const AlarmGroup = ({ route, navigation }) => {
       item.id === novoGrupo.id ? novoGrupo : item
     );
     storeData(newData);
+
+    const updatedAlarme = novoGrupo.alarmes.find(
+      (alarme) => alarme.id === alarmeId
+    );
+
+    if (updatedAlarme) {
+      if (updatedAlarme.ativo) {
+        // Schedule notification if the switch is on
+        const notificationId = await schedulePushNotifications(updatedAlarme);
+        updatedAlarme.notificationId = notificationId;
+      } else {
+        // Cancel notification if the switch is off
+        await cancelNotification(updatedAlarme.notificationId);
+      }
+    }
   };
-  console.log(group);
 
   const handleOpenModal = () => {
     setModalAlarmVisible(true);
@@ -88,6 +103,7 @@ const AlarmGroup = ({ route, navigation }) => {
     const now = new Date();
     const newAlarm = {
       id: Date.now(),
+      notificationId: null,
       nome: `nome: ${Date.now()}, ${group.nome}`,
       hora: `${
         hr?.toString().padStart(2, "0") ||
@@ -113,7 +129,9 @@ const AlarmGroup = ({ route, navigation }) => {
     );
     storeData(newData);
 
-    schedulePushNotifications(newAlarm);
+    const notificationId = await schedulePushNotifications(newAlarm);
+
+    newAlarm.notificationId = notificationId;
 
     openAlertModal(
       `Grupo ${group.nome}`,
