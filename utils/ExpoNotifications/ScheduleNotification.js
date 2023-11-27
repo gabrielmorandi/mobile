@@ -1,4 +1,5 @@
-import * as Notifications from "expo-notifications";import { Alert } from "react-native";
+import * as Notifications from "expo-notifications";
+import { Alert } from "react-native";
 import { format, set } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { utcToZonedTime } from "date-fns-tz";
@@ -60,6 +61,8 @@ async function schedulePushNotifications(alarm) {
       console.log(
         `Alerta criado: ${Notify} - ${formattedDate} - ${selectedDay}`
       );
+
+      return Notify;
     } else {
       Alert.alert(
         "Não foi possível calcular a próxima ocorrência da notificação."
