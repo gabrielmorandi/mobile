@@ -1,19 +1,19 @@
 export function getDayFromWeekDay(weekDay) {  const lowerCaseWeekDay = weekDay.toLowerCase();
   switch (lowerCaseWeekDay) {
     case "domingo":
-      return 0;
-    case "segunda":
       return 1;
-    case "terça":
+    case "segunda":
       return 2;
-    case "quarta":
+    case "terça":
       return 3;
-    case "quinta":
+    case "quarta":
       return 4;
-    case "sexta":
+    case "quinta":
       return 5;
-    case "sábado":
+    case "sexta":
       return 6;
+    case "sábado":
+      return 7;
     default:
       throw new Error("Dia da semana inválido");
   }

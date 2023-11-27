@@ -1,4 +1,2 @@
-export async function cancelNotification(notifId) {
-    await Notifications.cancelScheduledNotificationAsync(notifId);
-  }
-  
+export async function cancelNotification(notifId) {  await Notifications.cancelScheduledNotificationAsync(notifId);
+}
