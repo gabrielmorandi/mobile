@@ -43,7 +43,7 @@ const Header = ({ setModal, onDesativarTodosGrupos }) => {
         <Text style={styles.date}>{currentDate}</Text>
       </View>
       <View style={styles.mainHeaderContent}>
-        <Text style={styles.h6}>⏰ Grupos de Alarmes</Text>
+        <Text style={styles.headerHome}>⏰ Grupos de Alarmes</Text>
         <View style={styles.svgs}>
           <TouchableOpacity onPress={() => setModal(true)}>
             <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">

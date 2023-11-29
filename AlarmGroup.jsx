@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";import {
+import React, { useState, useEffect, useRef } from "react";
+import {
   View,
   ScrollView,
   Text,
@@ -12,8 +13,10 @@ import Svg, { Path } from "react-native-svg";
 import TimePicker from "./components/TimePicker";
 import { styles } from "./styles";
 import HeaderAlarmGroup from "./components/HeaderAlarmGroup";
-import schedulePushNotifications from "./utils/ExpoNotifications/scheduleNotification";
+
+import schedulePushNotifications from "./utils/ExpoNotifications/schedulePushNotifications";
 import cancelNotification from "./utils/ExpoNotifications/cancelNotification";
+
 const AlarmGroup = ({ route, navigation }) => {
   const [group, setGroup] = useState(route.params.group);
   const { data, storeData } = route.params;
@@ -63,7 +66,6 @@ const AlarmGroup = ({ route, navigation }) => {
 
     setGroup(novoGrupo);
 
-    // Atualiza o array data com o grupo modificado e salva no AsyncStorage
     const newData = data.map((item) =>
       item.id === novoGrupo.id ? novoGrupo : item
     );
@@ -76,11 +78,19 @@ const AlarmGroup = ({ route, navigation }) => {
     if (updatedAlarme) {
       if (updatedAlarme.ativo) {
         // Schedule notification if the switch is on
-        const notificationId = await schedulePushNotifications(updatedAlarme);
-        updatedAlarme.notificationId = notificationId;
+        const notifications = await schedulePushNotifications(updatedAlarme);
+        updatedAlarme.notificationId = notifications;
       } else {
         // Cancel notification if the switch is off
-        await cancelNotification(updatedAlarme.notificationId);
+        if (Array.isArray(updatedAlarme.notificationId)) {
+          // Cancel all scheduled notifications if there are multiple
+          updatedAlarme.notificationId.forEach(async (notificationId) => {
+            await cancelNotification(notificationId);
+          });
+        } else {
+          // Cancel the single scheduled notification
+          await cancelNotification(updatedAlarme.notificationId);
+        }
       }
     }
   };
@@ -103,7 +113,7 @@ const AlarmGroup = ({ route, navigation }) => {
     const now = new Date();
     const newAlarm = {
       id: Date.now(),
-      notificationId: null,
+      notificationId: [],
       nome: `nome: ${Date.now()}, ${group.nome}`,
       hora: `${
         hr?.toString().padStart(2, "0") ||
@@ -131,9 +141,9 @@ const AlarmGroup = ({ route, navigation }) => {
 
     const notificationId = await schedulePushNotifications(newAlarm);
 
-    newAlarm.notificationId = notificationId;
+    newAlarm.notificationId.push(notificationId); 
 
-    openAlertModal(
+    await openAlertModal(
       `Grupo ${group.nome}`,
       `O alarme para o horário ${newAlarm.hora} e dia(s) ${newAlarm.dias} foi criado com sucesso!`,
       () => {}
@@ -288,13 +298,13 @@ const AlarmGroup = ({ route, navigation }) => {
       >
         <View style={styles.centeredViewAlert}>
           <View style={styles.modalViewAlert}>
-            <Text style={styles.modalTextAlert}>{alertTitle}</Text>
-            <Text>{alertMessage}</Text>
+            <Text style={styles.modalTitleAlert}>{alertTitle}</Text>
+            <Text style={styles.modalTextAlert}>{alertMessage}</Text>
             <TouchableOpacity
               style={styles.buttonCloseAlert}
               onPress={closeAlertModal}
             >
-              <Text style={styles.buttonCloseAlert}>Fechar</Text>
+              <Text style={styles.buttonCloseAlertText}>Fechar</Text>
             </TouchableOpacity>
           </View>
         </View>
