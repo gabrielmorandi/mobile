@@ -29,8 +29,11 @@ async function schedulePushNotifications(alarm) {
   // Mapeia os dias da semana corretamente
   const mappedDias = dias.map((dia) => getDayFromWeekDay(dia));
 
+  const notifications = [];
+
   // Schedule notifications for each selected day
   for (const selectedDay of mappedDias) {
+    console.log(mappedDias);
     // Calcula a próxima ocorrência da notificação
     const nextNotificationDate = calculateNextNotificationDate(
       hora,
@@ -51,6 +54,8 @@ async function schedulePushNotifications(alarm) {
           hour: parseInt(hora.split(":")[0]),
           minute: parseInt(hora.split(":")[1]),
         },
+        actions: [{ identifier: "RESPOND", title: "Desligar" }],
+        vibrate: [1000, 1000, 1000],
       });
 
       const formattedDate = format(nextNotificationDate, "dd/MM/yyyy HH:mm", {
@@ -62,7 +67,7 @@ async function schedulePushNotifications(alarm) {
         `Alerta criado: ${Notify} - ${formattedDate} - ${selectedDay}`
       );
 
-      return Notify;
+      notifications.push(Notify);
     } else {
       Alert.alert(
         "Não foi possível calcular a próxima ocorrência da notificação."
@@ -70,7 +75,8 @@ async function schedulePushNotifications(alarm) {
     }
   }
 
-  return;
+  // Move the return statement outside the loop
+  return notifications;
 }
 
 function calculateNextNotificationDate(desiredTime, desiredWeekday) {

@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react"
-import { useFocusEffect } from "@react-navigation/native"
+import React, { useState, useEffect, useCallback } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 
 import {
   View,
@@ -9,40 +9,25 @@ import {
   TouchableWithoutFeedback,
   TextInput,
   Modal,
-} from "react-native"
-import DateTimePicker from "@react-native-community/datetimepicker"
-import TimePicker from "./components/TimePicker"
-import AsyncStorage from "@react-native-async-storage/async-storage"
-import { Switch } from "react-native-paper"
-import { useFonts } from "expo-font"
-import * as SplashScreen from "expo-splash-screen"
-SplashScreen.preventAutoHideAsync()
-import { styles } from "./styles"
-import Header from "./components/Header"
-import { StatusBar } from "expo-status-bar"
+} from "react-native";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import TimePicker from "./components/TimePicker";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Switch } from "react-native-paper";
+import { useFonts } from "expo-font";
+import { styles } from "./styles";
+import Header from "./components/Header";
+import { StatusBar } from "expo-status-bar";
 
 const Home = ({ navigation }) => {
-  const [fontsLoaded] = useFonts({
-    "nunito-regular": require("./assets/fonts/Nunito-Regular.ttf"),
-    "nunito-medium": require("./assets/fonts/Nunito-Medium.ttf"),
-  })
-  useEffect(() => {
-    const loadFonts = async () => {
-      await SplashScreen.hideAsync()
-    }
-
-    if (fontsLoaded) {
-      loadFonts()
-    }
-  }, [fontsLoaded])
-  const [data, setData] = useState([])
-  const [modalVisible, setModalVisible] = useState(false)
-  const [groupName, setGroupName] = useState("")
-  const [currentGroupId, setCurrentGroupId] = useState(null)
-  const [modalAlarmVisible, setModalAlarmVisible] = useState(false)
-  const [diasSelecionados, setDiasSelecionados] = useState([])
-  const [selectedHour, setSelectedHour] = useState(new Date().getHours())
-  const [selectedMinute, setSelectedMinute] = useState(new Date().getMinutes())
+  const [data, setData] = useState([]);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [groupName, setGroupName] = useState("");
+  const [currentGroupId, setCurrentGroupId] = useState(null);
+  const [modalAlarmVisible, setModalAlarmVisible] = useState(false);
+  const [diasSelecionados, setDiasSelecionados] = useState([]);
+  const [selectedHour, setSelectedHour] = useState(new Date().getHours());
+  const [selectedMinute, setSelectedMinute] = useState(new Date().getMinutes());
   const todosOsDias = [
     "Domingo",
     "Segunda",
@@ -51,55 +36,55 @@ const Home = ({ navigation }) => {
     "Quinta",
     "Sexta",
     "Sábado",
-  ]
+  ];
 
   // Função para converter hora em minutos
   const converterHoraParaMinutos = (hora) => {
-    const [horas, minutos] = hora.split(":").map(Number)
-    return horas * 60 + minutos
-  }
+    const [horas, minutos] = hora.split(":").map(Number);
+    return horas * 60 + minutos;
+  };
 
   // Função para converter minutos em hora
   const converterMinutosParaHora = (minutos) => {
-    const horas = Math.floor(minutos / 60)
-    const mins = minutos % 60
+    const horas = Math.floor(minutos / 60);
+    const mins = minutos % 60;
     return `${horas.toString().padStart(2, "0")}:${mins
       .toString()
-      .padStart(2, "0")}`
-  }
+      .padStart(2, "0")}`;
+  };
 
   // Função para toggle do switch
   const toggleSwitch = (itemId) => {
     const newData = data.map((item) => {
       if (item.id === itemId) {
-        return { ...item, grupoAtivo: !item.grupoAtivo }
+        return { ...item, grupoAtivo: !item.grupoAtivo };
       }
-      return item
-    })
-    setData(newData)
-  }
+      return item;
+    });
+    setData(newData);
+  };
 
   // Função para salvar dados no AsyncStorage
   const storeData = async (value) => {
     try {
-      const jsonValue = JSON.stringify(value)
-      await AsyncStorage.setItem("@data_key", jsonValue)
+      const jsonValue = JSON.stringify(value);
+      await AsyncStorage.setItem("@data_key", jsonValue);
     } catch (e) {
-      console.error("Erro ao salvar os dados", e)
+      console.error("Erro ao salvar os dados", e);
     }
-  }
+  };
 
   // Função para carregar dados do AsyncStorage
   const loadData = async () => {
     try {
-      const jsonValue = await AsyncStorage.getItem("@data_key")
+      const jsonValue = await AsyncStorage.getItem("@data_key");
       if (jsonValue != null) {
-        setData(JSON.parse(jsonValue))
+        setData(JSON.parse(jsonValue));
       }
     } catch (e) {
-      console.error("Erro ao carregar os dados", e)
+      console.error("Erro ao carregar os dados", e);
     }
-  }
+  };
 
   // Função para adicionar novo grupo
   const addGroup = () => {
@@ -108,42 +93,42 @@ const Home = ({ navigation }) => {
       nome: groupName,
       alarmes: [],
       grupoAtivo: true,
-    }
-    const newData = [...data, newGroup]
-    setData(newData)
-    storeData(newData)
+    };
+    const newData = [...data, newGroup];
+    setData(newData);
+    storeData(newData);
 
-    setCurrentGroupId(newGroup.id) // Armazenar o ID do novo grupo
+    setCurrentGroupId(newGroup.id); // Armazenar o ID do novo grupo
 
-    openAlarmModal()
-    setModalVisible(false)
-    setGroupName("")
-  }
+    openAlarmModal();
+    setModalVisible(false);
+    setGroupName("");
+  };
 
   // Função para fechar o modal de criação de grupo
   const closeModal = () => {
-    setModalVisible(false)
-    setGroupName("") // Reseta o nome do grupo apenas ao fechar o modal
-  }
+    setModalVisible(false);
+    setGroupName(""); // Reseta o nome do grupo apenas ao fechar o modal
+  };
 
   const onDiasSelecionadosChange = (novosDias) => {
-    setDiasSelecionados(novosDias)
-  }
+    setDiasSelecionados(novosDias);
+  };
 
   const openAlarmModal = () => {
-    const currentHour = new Date().getHours()
-    const currentMinute = new Date().getMinutes()
+    const currentHour = new Date().getHours();
+    const currentMinute = new Date().getMinutes();
 
-    setSelectedHour(currentHour)
-    setSelectedMinute(currentMinute)
-    setHr(currentHour)
-    setMin(currentMinute)
-    setModalAlarmVisible(true)
-  }
+    setSelectedHour(currentHour);
+    setSelectedMinute(currentMinute);
+    setHr(currentHour);
+    setMin(currentMinute);
+    setModalAlarmVisible(true);
+  };
 
   const addAlarm = () => {
     // Encontrar o grupo selecionado com base no ID
-    const selectedGroup = data.find((group) => group.id === currentGroupId)
+    const selectedGroup = data.find((group) => group.id === currentGroupId);
 
     if (selectedGroup) {
       const newAlarm = {
@@ -154,56 +139,56 @@ const Home = ({ navigation }) => {
           .padStart(2, "0")}`,
         ativo: true,
         dias: diasSelecionados,
-      }
+      };
 
       // Atualizar o array de alarmes do grupo selecionado
       const updatedGroup = {
         ...selectedGroup,
         alarmes: [...selectedGroup.alarmes, newAlarm],
-      }
+      };
 
       // Atualizar o estado com o grupo modificado e salvar no AsyncStorage
       const newData = data.map((item) =>
         item.id === currentGroupId ? updatedGroup : item
-      )
+      );
 
-      setData(newData)
-      storeData(newData)
+      setData(newData);
+      storeData(newData);
 
-      setModalAlarmVisible(false)
+      setModalAlarmVisible(false);
     }
-  }
+  };
 
   // Carrega dados ao inicializar
   useEffect(() => {
-    loadData()
-  }, [])
+    loadData();
+  }, []);
   useFocusEffect(
     React.useCallback(() => {
-      loadData()
+      loadData();
     }, [])
-  )
+  );
 
-  const [hr, setHr] = useState()
-  const [min, setMin] = useState()
+  const [hr, setHr] = useState();
+  const [min, setMin] = useState();
 
   const handleTimeChange = (hour, minute) => {
-    const newHour = hour !== undefined ? hour : selectedHour
-    const newMinute = minute !== undefined ? minute : selectedMinute
+    const newHour = hour !== undefined ? hour : selectedHour;
+    const newMinute = minute !== undefined ? minute : selectedMinute;
 
-    setSelectedHour(newHour)
-    setSelectedMinute(newMinute)
-    setHr(newHour)
-    setMin(newMinute)
+    setSelectedHour(newHour);
+    setSelectedMinute(newMinute);
+    setHr(newHour);
+    setMin(newMinute);
 
-    console.log(`Hora selecionada: ${newHour}:${newMinute}`)
-  }
+    console.log(`Hora selecionada: ${newHour}:${newMinute}`);
+  };
 
   const desativarTodosOsGrupos = () => {
-    const newData = data.map((grupo) => ({ ...grupo, grupoAtivo: false }))
-    setData(newData)
-    storeData(newData)
-  }
+    const newData = data.map((grupo) => ({ ...grupo, grupoAtivo: false }));
+    setData(newData);
+    storeData(newData);
+  };
 
   return (
     <View style={styles.container}>
@@ -217,17 +202,17 @@ const Home = ({ navigation }) => {
           {data.map((item) => {
             const alarmesAtivosMinutos = item.alarmes
               .filter((alarme) => alarme.ativo)
-              .map((alarme) => converterHoraParaMinutos(alarme.hora))
+              .map((alarme) => converterHoraParaMinutos(alarme.hora));
 
-            let horarioInicio, horarioFim
+            let horarioInicio, horarioFim;
             if (alarmesAtivosMinutos.length > 0) {
-              const menorHora = Math.min(...alarmesAtivosMinutos)
-              const maiorHora = Math.max(...alarmesAtivosMinutos)
-              horarioInicio = converterMinutosParaHora(menorHora)
-              horarioFim = converterMinutosParaHora(maiorHora)
+              const menorHora = Math.min(...alarmesAtivosMinutos);
+              const maiorHora = Math.max(...alarmesAtivosMinutos);
+              horarioInicio = converterMinutosParaHora(menorHora);
+              horarioFim = converterMinutosParaHora(maiorHora);
             } else {
-              horarioInicio = ""
-              horarioFim = ""
+              horarioInicio = "";
+              horarioFim = "";
             }
 
             return (
@@ -257,7 +242,7 @@ const Home = ({ navigation }) => {
                       const diaAtivo = item.alarmes.some(
                         (alarme) =>
                           alarme.ativo && alarme.dias.includes(diaSemana)
-                      )
+                      );
                       return (
                         <View key={index} style={styles.alarmDia}>
                           <Text style={styles.alarmOverline}>
@@ -265,7 +250,7 @@ const Home = ({ navigation }) => {
                           </Text>
                           {diaAtivo && <View style={styles.after} />}
                         </View>
-                      )
+                      );
                     })}
                   </View>
                 </TouchableOpacity>
@@ -280,7 +265,7 @@ const Home = ({ navigation }) => {
                   </View>
                 </TouchableWithoutFeedback>
               </View>
-            )
+            );
           })}
         </View>
       </ScrollView>
@@ -336,7 +321,7 @@ const Home = ({ navigation }) => {
         </View>
       </Modal> */}
     </View>
-  )
-}
+  );
+};
 
-export default Home
+export default Home;

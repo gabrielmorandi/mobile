@@ -1,11 +1,12 @@
-import React, { useState, useEffect, useRef } from "react"
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   ScrollView,
   Text,
   StyleSheet,
   TouchableOpacity,
-} from "react-native"
+} from "react-native";
+import colorsSchema from "../../constants/colorsSchema";
 
 const TimePicker = ({
   addAlarm,
@@ -19,71 +20,72 @@ const TimePicker = ({
 }) => {
   const [selectedHour, setSelectedHour] = useState(
     currentHour ?? new Date().getHours()
-  )
+  );
   const [selectedMinute, setSelectedMinute] = useState(
     currentMinute ?? new Date().getMinutes()
-  )
+  );
 
-  const [diasSelecionados, setDiasSelecionados] = useState([])
+  const [diasSelecionados, setDiasSelecionados] = useState([]);
 
-  const hourScrollViewRef = useRef(null)
-  const minuteScrollViewRef = useRef(null)
+  const hourScrollViewRef = useRef(null);
+  const minuteScrollViewRef = useRef(null);
 
-  const itemHeight = 80 // Altura de cada item de hora/minuto
-  const scrollViewHeight = itemHeight * 3 // Altura do ScrollView para mostrar 3 itens
+  const itemHeight = 80; // Altura de cada item de hora/minuto
+  const scrollViewHeight = itemHeight * 3; // Altura do ScrollView para mostrar 3 itens
 
   useEffect(() => {
     hourScrollViewRef.current?.scrollTo({
       y: selectedHour * itemHeight,
       animated: false,
-    })
+    });
     minuteScrollViewRef.current?.scrollTo({
       y: selectedMinute * itemHeight,
       animated: false,
-    })
-  }, [])
+    });
+  }, []);
 
   useEffect(() => {
-    console.log(alarm)
-    onTimeSelected(selectedHour, selectedMinute)
-  }, [alarm])
+    console.log(alarm);
+    onTimeSelected(selectedHour, selectedMinute);
+  }, []);
 
   const handleScroll = (event, type) => {
-    const y = event.nativeEvent.contentOffset.y
-    const index = Math.floor(y / itemHeight)
+    const y = event.nativeEvent.contentOffset.y;
+    const index = Math.floor(y / itemHeight);
 
     if (type === "hour") {
-      const newHour = index % 24
-      setSelectedHour(newHour)
-      onTimeSelected(newHour, selectedMinute)
+      const newHour = index % 24;
+      setSelectedHour(newHour);
+      onTimeSelected(newHour, selectedMinute);
     } else {
-      const newMinute = index % 60
-      setSelectedMinute(newMinute)
-      onTimeSelected(selectedHour, newMinute)
+      const newMinute = index % 60;
+      setSelectedMinute(newMinute);
+      onTimeSelected(selectedHour, newMinute);
     }
-  }
+  };
 
   const renderTimeOptions = (count) => {
-    let options = []
+    let options = [];
     for (let i = 0; i < count; i++) {
       options.push(
         <View key={i} style={styles.timeItem}>
           <Text style={styles.timeText}>{i.toString().padStart(2, "0")}</Text>
         </View>
-      )
+      );
     }
-    return options
-  }
+    return options;
+  };
 
   const toggleDia = (dia) => {
     setDiasSelecionados((prev) => {
+      console.log("Dia Selecionado: ", diasSelecionados);
       const novosDiasSelecionados = prev.includes(dia)
         ? prev.filter((d) => d !== dia)
-        : [...prev, dia]
-      onDiasSelecionadosChange(novosDiasSelecionados)
-      return novosDiasSelecionados
-    })
-  }
+        : [...prev, dia];
+      onDiasSelecionadosChange(novosDiasSelecionados);
+      return novosDiasSelecionados;
+    });
+  };
 
   return (
     <View style={styles.containerAlarm}>
@@ -143,8 +145,8 @@ const TimePicker = ({
         </View>
       </View>
     </View>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   containerAlarm: {
@@ -162,7 +164,7 @@ const styles = StyleSheet.create({
     paddingTop: 32,
     paddingBottom: 16,
     marginBottom: 16,
-    backgroundColor: "#292929",
+    backgroundColor: colorsSchema.Primary,
   },
   timeColumn: {
     width: 50,
@@ -174,12 +176,12 @@ const styles = StyleSheet.create({
   },
   timeText: {
     fontSize: 50,
-    color: "white",
+    color: colorsSchema.Text,
   },
   doisPontos: {
     lineHeight: 50,
     fontSize: 50,
-    color: "white",
+    color: colorsSchema.Text,
   },
   modalButtons: {
     flexDirection: "row",
@@ -190,7 +192,7 @@ const styles = StyleSheet.create({
   },
   buttonClose: {
     color: "#959598",
-    fontFamily: "nunito-regular",
+    // fontFamily: "nunito-regular",
     fontSize: 16,
     paddingHorizontal: 24,
     paddingVertical: 10,
@@ -198,10 +200,10 @@ const styles = StyleSheet.create({
   buttonCreate: {
     paddingHorizontal: 24,
     paddingVertical: 10,
-    backgroundColor: "#575759",
+    backgroundColor: colorsSchema.Secondary,
     color: "white",
     borderRadius: 24,
-    fontFamily: "nunito-medium",
+    // fontFamily: "nunito-medium",
     fontSize: 16,
   },
   alarmDias: {
@@ -216,16 +218,15 @@ const styles = StyleSheet.create({
   alarmOverline: {
     fontSize: 28,
     lineHeight: 32,
-    color: "#959598",
+    color: colorsSchema.Accent,
   },
   after: {
     fontSize: 50,
     lineHeight: 70,
-    color: "pink",
-    backgroundColor: "#1B1D1F",
+    color: colorsSchema.backgroundColor,
     height: 2,
     borderRadius: 100,
   },
-})
+});
 
-export default TimePicker
+export default TimePicker;
