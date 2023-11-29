@@ -1,4 +1,5 @@
-import * as Notifications from "expo-notifications";async function cancelNotification(notifId) {
+import * as Notifications from "expo-notifications";
+async function cancelNotification(notifId) {
   console.log("ID NOTIFICAÇÃO RECEBIDA PARA DELETAR: ", notifId);
   if (notifId && typeof notifId === "string") {
     await Notifications.cancelScheduledNotificationAsync(notifId);
