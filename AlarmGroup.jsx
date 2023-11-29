@@ -13,14 +13,23 @@ import Svg, { Path } from "react-native-svg";
 import TimePicker from "./components/TimePicker";
 import { styles } from "./styles";
 import HeaderAlarmGroup from "./components/HeaderAlarmGroup";
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import schedulePushNotifications from "./utils/ExpoNotifications/schedulePushNotifications";
 import cancelNotification from "./utils/ExpoNotifications/cancelNotification";
 
 const AlarmGroup = ({ route, navigation }) => {
+  const storeData = async (newData) => {
+    try {
+      await AsyncStorage.setItem("@myApp:data", JSON.stringify(newData));
+    } catch (error) {
+      console.error("Error storing data:", error);
+    }
+  };
+  const [data, setData] = useState([]);
+
   const [group, setGroup] = useState(route.params.group);
-  const { data, storeData } = route.params;
   const [modalAlarmVisible, setModalAlarmVisible] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
   const [hr, setHr] = useState();
   const [min, setMin] = useState();
   const [diasSelecionados, setDiasSelecionados] = useState([]);
@@ -77,18 +86,14 @@ const AlarmGroup = ({ route, navigation }) => {
 
     if (updatedAlarme) {
       if (updatedAlarme.ativo) {
-        // Schedule notification if the switch is on
         const notifications = await schedulePushNotifications(updatedAlarme);
         updatedAlarme.notificationId = notifications;
       } else {
-        // Cancel notification if the switch is off
         if (Array.isArray(updatedAlarme.notificationId)) {
-          // Cancel all scheduled notifications if there are multiple
           updatedAlarme.notificationId.forEach(async (notificationId) => {
             await cancelNotification(notificationId);
           });
         } else {
-          // Cancel the single scheduled notification
           await cancelNotification(updatedAlarme.notificationId);
         }
       }
@@ -139,17 +144,17 @@ const AlarmGroup = ({ route, navigation }) => {
     );
     storeData(newData);
 
+    setModalAlarmVisible(false);
+
     const notificationId = await schedulePushNotifications(newAlarm);
 
-    newAlarm.notificationId.push(notificationId); 
+    newAlarm.notificationId.push(notificationId);
 
-    await openAlertModal(
+    openAlertModal(
       `Grupo ${group.nome}`,
       `O alarme para o horário ${newAlarm.hora} e dia(s) ${newAlarm.dias} foi criado com sucesso!`,
       () => {}
     );
-
-    setModalAlarmVisible(false);
   };
 
   const handleTimeChange = (hour, minute) => {
@@ -173,6 +178,17 @@ const AlarmGroup = ({ route, navigation }) => {
     );
     storeData(newData);
 
+    const deletedAlarm = group.alarmes.find((alarme) => alarme.id === alarmId);
+    if (deletedAlarm && deletedAlarm.notificationId) {
+      if (Array.isArray(deletedAlarm.notificationId)) {
+        deletedAlarm.notificationId.forEach(async (notificationId) => {
+          await cancelNotification(notificationId);
+        });
+      } else {
+        await cancelNotification(deletedAlarm.notificationId);
+      }
+    }
+
     setIsDeleteModalVisible(false);
   };
 
@@ -182,20 +198,56 @@ const AlarmGroup = ({ route, navigation }) => {
     setIsDeleteModalVisible(true);
   };
 
-  const onDeleteGroup = () => {
+  const onDeleteGroup = async () => {
+    group.alarmes.forEach(async (alarme) => {
+      if (alarme.notificationId) {
+        if (Array.isArray(alarme.notificationId)) {
+          alarme.notificationId.forEach(async (notificationId) => {
+            await cancelNotification(notificationId);
+          });
+        } else {
+          await cancelNotification(alarme.notificationId);
+        }
+      }
+    });
+
     const newData = data.filter((item) => item.id !== group.id);
     storeData(newData);
     navigation.goBack();
   };
 
-  const deactivateAllAlarms = () => {
+  const desactivateAllAlarms = async () => {
     const updatedGroup = {
       ...group,
-      alarmes: group.alarmes.map((alarme) => ({ ...alarme, ativo: false })),
+      alarmes: group.alarmes.map((alarme) => ({
+        ...alarme,
+        ativo: !alarme.ativo, // Inverte o estado de ativação
+      })),
     };
     setGroup(updatedGroup);
 
-    // Atualizar o array data com o grupo modificado e salvar no AsyncStorage
+    // Itera sobre os alarmes do grupo atualizado
+    for (const alarme of updatedGroup.alarmes) {
+      if (alarme.notificationId) {
+        if (Array.isArray(alarme.notificationId)) {
+          // Se há vários IDs de notificação, cancela cada um
+          for (const notificationId of alarme.notificationId) {
+            await cancelNotification(notificationId);
+          }
+        } else {
+          // Se há apenas um ID de notificação, cancela ele
+          await cancelNotification(alarme.notificationId);
+        }
+      }
+
+      // Se o alarme está ativo, reagenda a notificação
+      if (alarme.ativo) {
+        const notifications = await schedulePushNotifications(alarme);
+        alarme.notificationId = notifications;
+      }
+    }
+
+    // Atualiza o array data com o grupo modificado e salva no AsyncStorage
     const newData = data.map((item) =>
       item.id === group.id ? updatedGroup : item
     );
@@ -208,7 +260,7 @@ const AlarmGroup = ({ route, navigation }) => {
         groupName={group.nome}
         onPressAdd={handleOpenModal}
         onDeleteGroup={onDeleteGroup}
-        onDeactivateAllAlarms={deactivateAllAlarms}
+        onDeactivateAllAlarms={desactivateAllAlarms}
       />
       <Modal
         animationType="slide"
@@ -222,7 +274,7 @@ const AlarmGroup = ({ route, navigation }) => {
           <View style={styles.modaAlarmlView}>
             <TimePicker
               addAlarm={addAlarm}
-              alarm={modalAlarmVisible}
+              alarm={modalVisible}
               onTimeSelected={handleTimeChange}
               todosDias={todosOsDias}
               onDiasSelecionadosChange={onDiasSelecionadosChange}

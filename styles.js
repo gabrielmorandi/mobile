@@ -261,7 +261,7 @@ export const styles = StyleSheet.create({
     borderRadius: 10,
     // fontFamily: "Nunito_400Regular",
     fontSize: 16,
-    color: "colorsSchema.Text",
+    color: colorsSchema.Text,
   },
   modalButtons: {
     flexDirection: "row",
