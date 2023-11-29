@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";import {
+import React, { useState, useEffect, useRef } from "react"
+import {
   View,
   ScrollView,
   Text,
@@ -6,53 +7,53 @@ import React, { useState, useEffect, useRef } from "react";import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   Modal,
-} from "react-native";
-import { Switch } from "react-native-paper";
-import Svg, { Path } from "react-native-svg";
-import TimePicker from "./components/TimePicker";
-import { styles } from "./styles";
-import HeaderAlarmGroup from "./components/HeaderAlarmGroup";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import schedulePushNotifications from "./utils/ExpoNotifications/schedulePushNotifications";
-import cancelNotification from "./utils/ExpoNotifications/cancelNotification";
+} from "react-native"
+import { Switch } from "react-native-paper"
+import Svg, { Path } from "react-native-svg"
+import TimePicker from "./components/TimePicker"
+import { styles } from "./styles"
+import HeaderAlarmGroup from "./components/HeaderAlarmGroup"
+import AsyncStorage from "@react-native-async-storage/async-storage"
+import schedulePushNotifications from "./utils/ExpoNotifications/schedulePushNotifications"
+import cancelNotification from "./utils/ExpoNotifications/cancelNotification"
 
 const AlarmGroup = ({ route, navigation }) => {
   const storeData = async (newData) => {
     try {
-      await AsyncStorage.setItem("@myApp:data", JSON.stringify(newData));
+      await AsyncStorage.setItem("@myApp:data", JSON.stringify(newData))
     } catch (error) {
-      console.error("Error storing data:", error);
+      console.error("Error storing data:", error)
     }
-  };
-  const [data, setData] = useState([]);
+  }
+  const [data, setData] = useState([])
 
-  const [group, setGroup] = useState(route.params.group);
-  const [modalAlarmVisible, setModalAlarmVisible] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [hr, setHr] = useState();
-  const [min, setMin] = useState();
-  const [diasSelecionados, setDiasSelecionados] = useState([]);
-  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
-  const [selectedAlarmId, setSelectedAlarmId] = useState(null);
-  const [alertModalVisible, setAlertModalVisible] = useState(false);
-  const [alertTitle, setAlertTitle] = useState("");
-  const [alertMessage, setAlertMessage] = useState("");
-  const [isSwitchOn, setIsSwitchOn] = useState(true);
+  const [group, setGroup] = useState(route.params.group)
+  const [modalAlarmVisible, setModalAlarmVisible] = useState(false)
+  const [modalVisible, setModalVisible] = useState(false)
+  const [hr, setHr] = useState()
+  const [min, setMin] = useState()
+  const [diasSelecionados, setDiasSelecionados] = useState([])
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false)
+  const [selectedAlarmId, setSelectedAlarmId] = useState(null)
+  const [alertModalVisible, setAlertModalVisible] = useState(false)
+  const [alertTitle, setAlertTitle] = useState("")
+  const [alertMessage, setAlertMessage] = useState("")
+  const [isSwitchOn, setIsSwitchOn] = useState(true)
 
   const openAlertModal = (title, message) => {
-    setAlertTitle(title);
-    setAlertMessage(message);
-    setAlertModalVisible(true);
-  };
+    setAlertTitle(title)
+    setAlertMessage(message)
+    setAlertModalVisible(true)
+  }
 
   const closeAlertModal = () => {
-    setAlertModalVisible(false);
-  };
+    setAlertModalVisible(false)
+  }
 
   const closeModal = () => {
-    setModalVisible(false);
-    onClose();
-  };
+    setModalVisible(false)
+    onClose()
+  }
   const todosOsDias = [
     "Domingo",
     "Segunda",
@@ -61,66 +62,64 @@ const AlarmGroup = ({ route, navigation }) => {
     "Quinta",
     "Sexta",
     "Sábado",
-  ];
+  ]
 
   const toggleAlarmeAtivo = async (alarmeId) => {
-    const novoGrupo = { ...group };
+    const novoGrupo = { ...group }
     novoGrupo.alarmes = novoGrupo.alarmes.map((alarme) => {
       if (alarme.id === alarmeId) {
-        return { ...alarme, ativo: !alarme.ativo };
+        return { ...alarme, ativo: !alarme.ativo }
       }
-      return alarme;
-    });
+      return alarme
+    })
 
-    setGroup(novoGrupo);
+    setGroup(novoGrupo)
 
     const newData = data.map((item) =>
       item.id === novoGrupo.id ? novoGrupo : item
-    );
-    storeData(newData);
+    )
+    storeData(newData)
 
     const updatedAlarme = novoGrupo.alarmes.find(
       (alarme) => alarme.id === alarmeId
-    );
+    )
 
     if (updatedAlarme) {
       if (updatedAlarme.ativo) {
-        const notifications = await schedulePushNotifications(updatedAlarme);
-        updatedAlarme.notificationId = notifications;
+        const notifications = await schedulePushNotifications(updatedAlarme)
+        updatedAlarme.notificationId = notifications
       } else {
         if (Array.isArray(updatedAlarme.notificationId)) {
           for (const notificationId of updatedAlarme.notificationId) {
             // Aguarde um curto período (por exemplo, 1000 milissegundos) antes de cancelar a notificação
             setTimeout(async () => {
-              await cancelNotification(notificationId);
-            }, 1000);
+              await cancelNotification(notificationId)
+            }, 1000)
           }
         } else {
           // Aguarde um curto período antes de cancelar a notificação
           setTimeout(async () => {
-            await cancelNotification(updatedAlarme.notificationId);
-          }, 1000);
+            await cancelNotification(updatedAlarme.notificationId)
+          }, 1000)
         }
       }
     }
-  };
+  }
 
   const handleOpenModal = () => {
-    setModalAlarmVisible(true);
-  };
+    setModalAlarmVisible(true)
+  }
   const addAlarm = async () => {
     const getNomeDiaSemanaAtual = () => {
-      const hoje = new Date();
-      const nomeDia = todosOsDias[hoje.getDay()];
-      return nomeDia;
-    };
+      const hoje = new Date()
+      const nomeDia = todosOsDias[hoje.getDay()]
+      return nomeDia
+    }
 
     const dias =
-      diasSelecionados.length > 0
-        ? diasSelecionados
-        : [getNomeDiaSemanaAtual()];
+      diasSelecionados.length > 0 ? diasSelecionados : [getNomeDiaSemanaAtual()]
 
-    const now = new Date();
+    const now = new Date()
     const newAlarm = {
       id: Date.now(),
       notificationId: [],
@@ -135,73 +134,73 @@ const AlarmGroup = ({ route, navigation }) => {
       ativo: true,
       dias: dias,
       grupo: `${group.nome}`,
-    };
+    }
 
     const updatedGroup = {
       ...group,
       alarmes: [...group.alarmes, newAlarm],
-    };
-    setGroup(updatedGroup);
+    }
+    setGroup(updatedGroup)
 
     // Atualizar o array data com o grupo modificado e salva no AsyncStorage
     const newData = data.map((item) =>
       item.id === group.id ? updatedGroup : item
-    );
-    storeData(newData);
+    )
+    storeData(newData)
 
-    setModalAlarmVisible(false);
+    setModalAlarmVisible(false)
 
-    const notificationId = await schedulePushNotifications(newAlarm);
+    const notificationId = await schedulePushNotifications(newAlarm)
 
-    newAlarm.notificationId.push(notificationId);
+    newAlarm.notificationId.push(notificationId)
 
     openAlertModal(
       `Grupo ${group.nome}`,
       `O alarme para o horário ${newAlarm.hora} e dia(s) ${newAlarm.dias} foi criado com sucesso!`,
       () => {}
-    );
-  };
+    )
+  }
 
   const handleTimeChange = (hour, minute) => {
-    setHr(hour);
-    setMin(minute);
-    console.log(`Hora selecionada: ${hr}:${min}`);
-  };
+    setHr(hour)
+    setMin(minute)
+    console.log(`Hora selecionada: ${hr}:${min}`)
+  }
   const onDiasSelecionadosChange = (novosDias) => {
-    setDiasSelecionados(novosDias);
-  };
+    setDiasSelecionados(novosDias)
+  }
 
   const deleteAlarm = async (alarmId) => {
     const updatedGroup = {
       ...group,
       alarmes: group.alarmes.filter((alarme) => alarme.id !== alarmId),
-    };
-    setGroup(updatedGroup);
+    }
+    setGroup(updatedGroup)
 
     const newData = data.map((item) =>
       item.id === group.id ? updatedGroup : item
-    );
-    storeData(newData);
+    )
+    storeData(newData)
 
-    const deletedAlarm = group.alarmes.find((alarme) => alarme.id === alarmId);
+    const deletedAlarm = group.alarmes.find((alarme) => alarme.id === alarmId)
     if (deletedAlarm && deletedAlarm.notificationId) {
       if (Array.isArray(deletedAlarm.notificationId)) {
         deletedAlarm.notificationId.forEach(async (notificationId) => {
-          await cancelNotification(notificationId);
-        });
+          await cancelNotification(notificationId)
+        })
       } else {
-        await cancelNotification(deletedAlarm.notificationId);
+        await cancelNotification(deletedAlarm.notificationId)
       }
     }
 
-    setIsDeleteModalVisible(false);
-  };
+    setIsDeleteModalVisible(false)
+  }
 
   const onAlarmPress = (alarmId) => {
-    console.log("Abrindo modal de exclusão para o alarme:", alarmId);
-    setSelectedAlarmId(alarmId);
-    setIsDeleteModalVisible(true);
-  };
+    console.log("Abrindo modal de exclusão para o alarme:", alarmId)
+    setSelectedAlarmId(alarmId)
+    setIsDeleteModalVisible(true)
+  }
 
   const onDeleteGroup = async () => {
     // Cancela as notificações de todos os alarmes do grupo
@@ -210,22 +209,22 @@ const AlarmGroup = ({ route, navigation }) => {
         if (Array.isArray(alarme.notificationId)) {
           // Se há vários IDs de notificação, cancela cada um
           for (const notificationId of alarme.notificationId) {
-            await cancelNotification(notificationId);
+            await cancelNotification(notificationId)
           }
         } else {
           // Se há apenas um ID de notificação, cancela ele
-          await cancelNotification(alarme.notificationId);
+          await cancelNotification(alarme.notificationId)
         }
       }
     }
 
     // Remove o grupo do conjunto de dados
-    const newData = data.filter((item) => item.id !== group.id);
-    storeData(newData);
+    const newData = data.filter((item) => item.id !== group.id)
+    storeData(newData)
 
     // Navega de volta para a tela anterior
-    navigation.goBack();
-  };
+    navigation.goBack()
+  }
 
   const desactivateAllAlarms = async () => {
     const updatedGroup = {
@@ -234,8 +233,8 @@ const AlarmGroup = ({ route, navigation }) => {
         ...alarme,
         ativo: !group.alarmes.every((a) => a.ativo), // Inverte o estado de ativação para o oposto atual
       })),
-    };
-    setGroup(updatedGroup);
+    }
+    setGroup(updatedGroup)
 
     // Itera sobre os alarmes do grupo atualizado
     for (const alarme of updatedGroup.alarmes) {
@@ -244,19 +243,19 @@ const AlarmGroup = ({ route, navigation }) => {
           // Se há vários IDs de notificação, cancela ou agenda cada um
           for (const notificationId of alarme.notificationId) {
             if (alarme.ativo) {
-              const notifications = await schedulePushNotifications(alarme);
-              alarme.notificationId = notifications;
+              const notifications = await schedulePushNotifications(alarme)
+              alarme.notificationId = notifications
             } else {
-              await cancelNotification(notificationId);
+              await cancelNotification(notificationId)
             }
           }
         } else {
           // Se há apenas um ID de notificação, cancela ou agenda ele
           if (alarme.ativo) {
-            const notifications = await schedulePushNotifications(alarme);
-            alarme.notificationId = notifications;
+            const notifications = await schedulePushNotifications(alarme)
+            alarme.notificationId = notifications
           } else {
-            await cancelNotification(alarme.notificationId);
+            await cancelNotification(alarme.notificationId)
           }
         }
       }
@@ -265,9 +264,9 @@ const AlarmGroup = ({ route, navigation }) => {
     // Atualiza o array data com o grupo modificado e salva no AsyncStorage
     const newData = data.map((item) =>
       item.id === group.id ? updatedGroup : item
-    );
-    storeData(newData);
-  };
+    )
+    storeData(newData)
+  }
 
   return (
     <View style={styles.container}>
@@ -282,7 +281,7 @@ const AlarmGroup = ({ route, navigation }) => {
         transparent={true}
         visible={modalAlarmVisible}
         onRequestClose={() => {
-          setModalAlarmVisible(!modalAlarmVisible);
+          setModalAlarmVisible(!modalAlarmVisible)
         }}
       >
         <View style={styles.modalAlarm}>
@@ -329,7 +328,7 @@ const AlarmGroup = ({ route, navigation }) => {
                   </View>
                   <View style={styles.alarmDias}>
                     {todosOsDias.map((diaSemana, index) => {
-                      const diaAtivo = alarme.dias.includes(diaSemana);
+                      const diaAtivo = alarme.dias.includes(diaSemana)
                       return (
                         <View key={index} style={styles.alarmDia}>
                           <Text style={styles.alarmOverline}>
@@ -337,7 +336,7 @@ const AlarmGroup = ({ route, navigation }) => {
                           </Text>
                           {diaAtivo && <View style={styles.after} />}
                         </View>
-                      );
+                      )
                     })}
                   </View>
                 </TouchableOpacity>
@@ -424,11 +423,11 @@ const AlarmGroup = ({ route, navigation }) => {
                   <TouchableOpacity
                     style={styles.buttonDelete}
                     onPress={() => {
-                      deleteAlarm(selectedAlarmId);
+                      deleteAlarm(selectedAlarmId)
                       openAlertModal(
                         "Alarme Excluído",
                         "O alarme foi excluído com sucesso!"
-                      );
+                      )
                     }}
                   >
                     <Text style={styles.buttonCreate}>Excluir</Text>
@@ -440,11 +439,11 @@ const AlarmGroup = ({ route, navigation }) => {
         </View>
       </Modal>
     </View>
-  );
-};
+  )
+}
 
 const stylesIn = StyleSheet.create({
   alarmTitle: { fontSize: 24, color: "#575759" },
-});
+})
 
-export default AlarmGroup;
+export default AlarmGroup

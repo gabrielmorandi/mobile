@@ -1,46 +1,48 @@
-import React, { useState, useEffect } from "react";
-import { Text, View, TouchableOpacity, Modal } from "react-native";
-import Svg, { Path } from "react-native-svg";
-import { styles } from "../../styles";
-import dayjs from "dayjs";
-require("dayjs/locale/pt-br");
-require("dayjs/plugin/customParseFormat");
+import React, { useState, useEffect } from "react"
+import { Text, View, TouchableOpacity, Modal } from "react-native"
+import Svg, { Path } from "react-native-svg"
+import { styles } from "../../styles"
+import dayjs from "dayjs"
+require("dayjs/locale/pt-br")
+require("dayjs/plugin/customParseFormat")
 
-dayjs.locale("pt-br");
-dayjs.extend(require("dayjs/plugin/customParseFormat"));
+dayjs.locale("pt-br")
+dayjs.extend(require("dayjs/plugin/customParseFormat"))
 
 const Header = ({ setModal, onDesativarTodosGrupos }) => {
-  const [greeting, setGreeting] = useState("");
+  const [greeting, setGreeting] = useState("")
   const [currentDate, setCurrentDate] = useState(
     dayjs().format("dddd, DD MMMM HH:mm")
-  );
+  )
 
   const updateGreeting = () => {
-    const currentHour = new Date().getHours();
+    const currentHour = new Date().getHours()
 
     if (currentHour >= 5 && currentHour < 12) {
-      setGreeting("Bom dia ⛅");
+      setGreeting("Bom dia ⛅")
     } else if (currentHour >= 12 && currentHour < 18) {
-      setGreeting("Boa tarde ☀️");
+      setGreeting("Boa tarde ☀️")
     } else {
-      setGreeting("Boa noite 🌙");
+      setGreeting("Boa noite 🌙")
     }
 
-    setCurrentDate(dayjs().format("dddd, DD MMMM HH:mm"));
-  };
+    setCurrentDate(dayjs().format("dddd, DD MMMM HH:mm"))
+  }
 
   useEffect(() => {
-    updateGreeting();
-    const intervalId = setInterval(updateGreeting, 30000);
+    updateGreeting()
+    const intervalId = setInterval(updateGreeting, 30000)
 
-    return () => clearInterval(intervalId);
-  }, []);
+    return () => clearInterval(intervalId)
+  }, [])
 
   return (
     <View style={styles.mainHeader}>
-      <Text style={styles.bom}>{greeting}</Text>
-      <View style={styles.times}>
-        <Text style={styles.date}>{currentDate}</Text>
+      <View>
+        <Text style={styles.bom}>{greeting}</Text>
+        <View style={styles.times}>
+          <Text style={styles.date}>{currentDate}</Text>
+        </View>
       </View>
       <View style={styles.mainHeaderContent}>
         <Text style={styles.headerHome}>⏰ Grupos de Alarmes</Text>
@@ -70,7 +72,7 @@ const Header = ({ setModal, onDesativarTodosGrupos }) => {
         </View>
       </View>
     </View>
-  );
-};
+  )
+}
 
-export default Header;
+export default Header

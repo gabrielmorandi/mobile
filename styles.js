@@ -1,5 +1,5 @@
-import { StyleSheet } from "react-native";
-import colorsSchema from "./constants/colorsSchema";
+import { StyleSheet } from "react-native"
+import colorsSchema from "./constants/colorsSchema"
 
 export const styles = StyleSheet.create({
   container: {
@@ -13,9 +13,10 @@ export const styles = StyleSheet.create({
     backgroundColor: colorsSchema.Primary,
     gap: 24,
     borderRadius: 16,
-    paddingTop: 16,
-    paddingBottom: 16,
-    paddingLeft: 16,
+    padding: 16,
+    // paddingTop: 16,
+    // paddingBottom: 16,m
+    // paddingLeft: 16,
   },
   mainHeaderContent: {
     flexDirection: "row",
@@ -28,15 +29,16 @@ export const styles = StyleSheet.create({
   },
   h6: {
     // fontFamily: "Nunito_500Medium",
+    maxWidth: 200,
     color: colorsSchema.Text,
-    fontSize: 32,
-    lineHeight: 48,
-    letterSpacing: 5,
+    fontSize: 24,
+    lineHeight: 32,
+    letterSpacing: 2.5,
   },
   headerHome: {
     // fontFamily: "Nunito_500Medium",
     color: colorsSchema.Text,
-    fontSize: 24,
+    fontSize: 20,
     lineHeight: 24,
   },
   bom: {
@@ -61,7 +63,7 @@ export const styles = StyleSheet.create({
   },
   date: {
     // fontFamily: "Nunito_400Regular",
-    fontSize: 24,
+    fontSize: 20,
     color: colorsSchema.Text,
     lineHeight: 32,
   },
@@ -299,6 +301,6 @@ export const styles = StyleSheet.create({
     // fontFamily: "Nunito_500Medium",
     fontSize: 16,
   },
-});
+})
 
-export default styles;
+export default styles
