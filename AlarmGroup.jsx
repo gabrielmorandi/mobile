@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
-import {
+import React, { useState, useEffect, useRef } from "react";import {
   View,
   ScrollView,
   Text,
@@ -90,11 +89,17 @@ const AlarmGroup = ({ route, navigation }) => {
         updatedAlarme.notificationId = notifications;
       } else {
         if (Array.isArray(updatedAlarme.notificationId)) {
-          updatedAlarme.notificationId.forEach(async (notificationId) => {
-            await cancelNotification(notificationId);
-          });
+          for (const notificationId of updatedAlarme.notificationId) {
+            // Aguarde um curto período (por exemplo, 1000 milissegundos) antes de cancelar a notificação
+            setTimeout(async () => {
+              await cancelNotification(notificationId);
+            }, 1000);
+          }
         } else {
-          await cancelNotification(updatedAlarme.notificationId);
+          // Aguarde um curto período antes de cancelar a notificação
+          setTimeout(async () => {
+            await cancelNotification(updatedAlarme.notificationId);
+          }, 1000);
         }
       }
     }
@@ -199,35 +204,8 @@ const AlarmGroup = ({ route, navigation }) => {
   };
 
   const onDeleteGroup = async () => {
-    group.alarmes.forEach(async (alarme) => {
-      if (alarme.notificationId) {
-        if (Array.isArray(alarme.notificationId)) {
-          alarme.notificationId.forEach(async (notificationId) => {
-            await cancelNotification(notificationId);
-          });
-        } else {
-          await cancelNotification(alarme.notificationId);
-        }
-      }
-    });
-
-    const newData = data.filter((item) => item.id !== group.id);
-    storeData(newData);
-    navigation.goBack();
-  };
-
-  const desactivateAllAlarms = async () => {
-    const updatedGroup = {
-      ...group,
-      alarmes: group.alarmes.map((alarme) => ({
-        ...alarme,
-        ativo: !alarme.ativo, // Inverte o estado de ativação
-      })),
-    };
-    setGroup(updatedGroup);
-
-    // Itera sobre os alarmes do grupo atualizado
-    for (const alarme of updatedGroup.alarmes) {
+    // Cancela as notificações de todos os alarmes do grupo
+    for (const alarme of group.alarmes) {
       if (alarme.notificationId) {
         if (Array.isArray(alarme.notificationId)) {
           // Se há vários IDs de notificação, cancela cada um
@@ -239,11 +217,48 @@ const AlarmGroup = ({ route, navigation }) => {
           await cancelNotification(alarme.notificationId);
         }
       }
+    }
 
-      // Se o alarme está ativo, reagenda a notificação
-      if (alarme.ativo) {
-        const notifications = await schedulePushNotifications(alarme);
-        alarme.notificationId = notifications;
+    // Remove o grupo do conjunto de dados
+    const newData = data.filter((item) => item.id !== group.id);
+    storeData(newData);
+
+    // Navega de volta para a tela anterior
+    navigation.goBack();
+  };
+
+  const desactivateAllAlarms = async () => {
+    const updatedGroup = {
+      ...group,
+      alarmes: group.alarmes.map((alarme) => ({
+        ...alarme,
+        ativo: !group.alarmes.every((a) => a.ativo), // Inverte o estado de ativação para o oposto atual
+      })),
+    };
+    setGroup(updatedGroup);
+
+    // Itera sobre os alarmes do grupo atualizado
+    for (const alarme of updatedGroup.alarmes) {
+      if (alarme.notificationId) {
+        if (Array.isArray(alarme.notificationId)) {
+          // Se há vários IDs de notificação, cancela ou agenda cada um
+          for (const notificationId of alarme.notificationId) {
+            if (alarme.ativo) {
+              const notifications = await schedulePushNotifications(alarme);
+              alarme.notificationId = notifications;
+            } else {
+              await cancelNotification(notificationId);
+            }
+          }
+        } else {
+          // Se há apenas um ID de notificação, cancela ou agenda ele
+          if (alarme.ativo) {
+            const notifications = await schedulePushNotifications(alarme);
+            alarme.notificationId = notifications;
+          } else {
+            await cancelNotification(alarme.notificationId);
+          }
+        }
       }
     }
 
