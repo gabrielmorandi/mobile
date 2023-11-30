@@ -142,9 +142,9 @@ const AlarmGroup = ({ route, navigation }) => {
 
     setModalAlarmVisible(false)
 
-    const notificationId = await schedulePushNotifications(newAlarm)
+    const notificationIds = await schedulePushNotifications(newAlarm)
 
-    newAlarm.notificationId.push(notificationId)
+    newAlarm.notificationId.push(notificationIds)
 
     openAlertModal(
       `Grupo ${group.nome}`,

@@ -1,4 +1,5 @@
-import * as Notifications from "expo-notifications";import { Alert } from "react-native";
+import * as Notifications from "expo-notifications";
+import { Alert } from "react-native";
 import { format, set } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { utcToZonedTime } from "date-fns-tz";
@@ -29,11 +30,10 @@ async function schedulePushNotifications(alarm) {
   const mappedDias = dias.map((dia) => getDayFromWeekDay(dia));
 
   const notifications = [];
+  const dates = [];
 
   // Schedule notifications for each selected day
   for (const selectedDay of mappedDias) {
-    console.log(mappedDias);
-    // Calcula a próxima ocorrência da notificação
     const nextNotificationDate = calculateNextNotificationDate(
       hora,
       selectedDay
@@ -57,16 +57,13 @@ async function schedulePushNotifications(alarm) {
         vibrate: [1000, 1000, 1000],
       });
 
-      const formattedDate = format(nextNotificationDate, "dd/MM/yyyy HH:mm", {
+      const formattedDate = format(nextNotificationDate, "dd/MM/yyyy", {
         timeZone: "America/Sao_Paulo",
         locale: ptBR,
       });
 
-      console.log(
-        `Alerta criado: ${Notify} - ${formattedDate} - ${selectedDay}`
-      );
-
       notifications.push(Notify);
+      dates.push(formattedDate);
     } else {
       Alert.alert(
         "Não foi possível calcular a próxima ocorrência da notificação."
@@ -74,7 +71,16 @@ async function schedulePushNotifications(alarm) {
     }
   }
 
-  // Move the return statement outside the loop
+  console.log(
+    `\n
+    -----------------------------------
+    Alertas criados: ${notifications}\n 
+    Para as datas - ${dates}\n
+    Dias da semana - ${dias}\n
+    Horário: ${hora}\n
+    -----------------------------------`
+  );
+
   return notifications;
 }
 
