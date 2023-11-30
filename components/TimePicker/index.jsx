@@ -30,8 +30,8 @@ const TimePicker = ({
   const hourScrollViewRef = useRef(null);
   const minuteScrollViewRef = useRef(null);
 
-  const itemHeight = 80; // Altura de cada item de hora/minuto
-  const scrollViewHeight = itemHeight * 3; // Altura do ScrollView para mostrar 3 itens
+  const itemHeight = 80; 
+  const scrollViewHeight = itemHeight * 3; 
 
   useEffect(() => {
     hourScrollViewRef.current?.scrollTo({
@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
   },
   buttonClose: {
     color: "#959598",
-    // fontFamily: "nunito-regular",
+    
     fontSize: 16,
     paddingHorizontal: 24,
     paddingVertical: 10,
@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
     backgroundColor: colorsSchema.Secondary,
     color: "white",
     borderRadius: 24,
-    // fontFamily: "nunito-medium",
+    
     fontSize: 16,
   },
   alarmA: {

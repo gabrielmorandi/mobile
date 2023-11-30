@@ -55,7 +55,7 @@ const Header = ({ setModal, onDesativarTodosGrupos }) => {
               />
             </Svg>
           </TouchableOpacity>
-          <TouchableOpacity onPress={onDesativarTodosGrupos}>
+          {/* <TouchableOpacity onPress={onDesativarTodosGrupos}>
             <Svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"
@@ -68,7 +68,7 @@ const Header = ({ setModal, onDesativarTodosGrupos }) => {
                 fill="#1B1D1F"
               />
             </Svg>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       </View>
     </View>

@@ -83,13 +83,12 @@ const AlarmGroup = ({ route, navigation }) => {
       } else {
         if (Array.isArray(updatedAlarme.notificationId)) {
           for (const notificationId of updatedAlarme.notificationId) {
-            // Aguarde um curto período (por exemplo, 1000 milissegundos) antes de cancelar a notificação
+            
             setTimeout(async () => {
               await cancelNotification(notificationId)
             }, 1000)
           }
         } else {
-          // Aguarde um curto período antes de cancelar a notificação
           setTimeout(async () => {
             await cancelNotification(updatedAlarme.notificationId)
           }, 1000)
@@ -134,7 +133,6 @@ const AlarmGroup = ({ route, navigation }) => {
     }
     setGroup(updatedGroup)
 
-    // Atualizar o array data com o grupo modificado e salva no AsyncStorage
     const newData = data.map((item) =>
       item.id === group.id ? updatedGroup : item
     )
@@ -195,26 +193,21 @@ const AlarmGroup = ({ route, navigation }) => {
   }
 
   const onDeleteGroup = async () => {
-    // Cancela as notificações de todos os alarmes do grupo
     for (const alarme of group.alarmes) {
       if (alarme.notificationId) {
         if (Array.isArray(alarme.notificationId)) {
-          // Se há vários IDs de notificação, cancela cada um
           for (const notificationId of alarme.notificationId) {
             await cancelNotification(notificationId)
           }
         } else {
-          // Se há apenas um ID de notificação, cancela ele
           await cancelNotification(alarme.notificationId)
         }
       }
     }
 
-    // Remove o grupo do conjunto de dados
     const newData = data.filter((item) => item.id !== group.id)
     storeData(newData)
 
-    // Navega de volta para a tela anterior
     navigation.goBack()
   }
 
@@ -223,16 +216,14 @@ const AlarmGroup = ({ route, navigation }) => {
       ...group,
       alarmes: group.alarmes.map((alarme) => ({
         ...alarme,
-        ativo: !group.alarmes.every((a) => a.ativo), // Inverte o estado de ativação para o oposto atual
+        ativo: !group.alarmes.every((a) => a.ativo), 
       })),
     }
     setGroup(updatedGroup)
 
-    // Itera sobre os alarmes do grupo atualizado
     for (const alarme of updatedGroup.alarmes) {
       if (alarme.notificationId) {
         if (Array.isArray(alarme.notificationId)) {
-          // Se há vários IDs de notificação, cancela ou agenda cada um
           for (const notificationId of alarme.notificationId) {
             if (alarme.ativo) {
               const notifications = await schedulePushNotifications(alarme)
@@ -242,7 +233,6 @@ const AlarmGroup = ({ route, navigation }) => {
             }
           }
         } else {
-          // Se há apenas um ID de notificação, cancela ou agenda ele
           if (alarme.ativo) {
             const notifications = await schedulePushNotifications(alarme)
             alarme.notificationId = notifications
@@ -253,7 +243,6 @@ const AlarmGroup = ({ route, navigation }) => {
       }
     }
 
-    // Atualiza o array data com o grupo modificado e salva no AsyncStorage
     const newData = data.map((item) =>
       item.id === group.id ? updatedGroup : item
     )
