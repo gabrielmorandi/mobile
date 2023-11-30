@@ -18,16 +18,8 @@ import schedulePushNotifications from "./utils/ExpoNotifications/schedulePushNot
 import cancelNotification from "./utils/ExpoNotifications/cancelNotification"
 
 const AlarmGroup = ({ route, navigation }) => {
-  const storeData = async (newData) => {
-    try {
-      await AsyncStorage.setItem("@myApp:data", JSON.stringify(newData))
-    } catch (error) {
-      console.error("Error storing data:", error)
-    }
-  }
-  const [data, setData] = useState([])
-
   const [group, setGroup] = useState(route.params.group)
+  const { data, storeData } = route.params
   const [modalAlarmVisible, setModalAlarmVisible] = useState(false)
   const [modalVisible, setModalVisible] = useState(false)
   const [hr, setHr] = useState()
