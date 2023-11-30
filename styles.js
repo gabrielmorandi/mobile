@@ -1,5 +1,5 @@
-import { StyleSheet } from "react-native"
-import colorsSchema from "./constants/colorsSchema"
+import { StyleSheet } from "react-native";
+import colorsSchema from "./constants/colorsSchema";
 
 export const styles = StyleSheet.create({
   container: {
@@ -170,7 +170,7 @@ export const styles = StyleSheet.create({
     flexDirection: "column",
   },
   after: {
-    backgroundColor: "#1B1D1F",
+    backgroundColor: colorsSchema.Background,
     height: 1,
     borderRadius: 100,
   },
@@ -301,6 +301,6 @@ export const styles = StyleSheet.create({
     // fontFamily: "Nunito_500Medium",
     fontSize: 16,
   },
-})
+});
 
-export default styles
+export default styles;

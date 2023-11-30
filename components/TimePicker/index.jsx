@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
     color: colorsSchema.Accent,
   },
   after: {
-    backgroundColor: colorsSchema.Accent,
+    backgroundColor: colorsSchema.Background,
     height: 2,
     borderRadius: 100,
   },
